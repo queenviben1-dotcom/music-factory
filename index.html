@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Factory — สร้าง MV อัตโนมัติ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --success: #10b981;
+    --error: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    margin-bottom: 48px;
+    text-align: center;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .section {
+    margin-bottom: 32px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field.full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  label .optional {
+    color: var(--border);
+    font-weight: 300;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    padding: 12px 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    width: 100%;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+  }
+
+  select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  select option {
+    background: var(--surface2);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--muted);
+    opacity: 0.5;
+  }
+
+  .duration-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .duration-group input {
+    width: 100px;
+  }
+
+  .duration-label {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent) 0%, #5b21b6 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.4s;
+  }
+
+  .submit-btn:hover::before { left: 100%; }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(124,58,237,0.4); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .result {
+    margin-top: 24px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .result.success {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--success);
+    display: block;
+  }
+
+  .result.error {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--error);
+    display: block;
+  }
+
+  .result-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .result-detail {
+    opacity: 0.8;
+    line-height: 1.6;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .logo { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">Music Factory</div>
+    <div class="subtitle">สร้าง MV อัตโนมัติด้วย AI</div>
+  </header>
+
+  <form id="mvForm">
+
+    <!-- เพลง -->
+    <div class="section">
+      <div class="section-title">🎵 เพลง</div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Genre <span class="optional">(ประเภทเพลง)</span></label>
+          <input type="text" name="genre" placeholder="lo-fi hip hop, ambient sleep...">
+        </div>
+        <div class="field">
+          <label>Mood <span class="optional">(อารมณ์)</span></label>
+          <input type="text" name="mood" placeholder="relaxing, dreamy, energetic...">
+        </div>
+        <div class="field">
+          <label>Music Style <span class="optional">(สไตล์)</span></label>
+          <select name="music_style">
+            <option value="">— ไม่ระบุ —</option>
+            <option value="instrumental">Instrumental</option>
+            <option value="vocal">Vocal</option>
+            <option value="acoustic">Acoustic</option>
+            <option value="electronic">Electronic</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Duration <span class="optional">(ความยาว)</span></label>
+          <div class="duration-group">
+            <input type="number" name="duration_min" value="6" min="1" max="120">
+            <span class="duration-label">นาที</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Tempo <span class="optional">(ความเร็ว)</span></label>
+          <select name="tempo">
+            <option value="">— ไม่ระบุ —</option>
+            <option value="very slow">Very Slow</option>
+            <option value="slow">Slow</option>
+            <option value="medium">Medium</option>
+            <option value="fast">Fast</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Key <span class="optional">(คีย์)</span></label>
+          <select name="key">
+            <option value="">— ไม่ระบุ —</option>
+            <option value="C major">C Major</option>
+            <option value="C minor">C Minor</option>
+            <option value="D major">D Major</option>
+            <option value="D minor">D Minor</option>
+            <option value="E major">E Major</option>
+            <option value="E minor">E Minor</option>
+            <option value="F major">F Major</option>
+            <option value="G major">G Major</option>
+            <option value="A major">A Major</option>
+            <option value="A minor">A Minor</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Lyric Theme <span class="optional">(ธีมเนื้อเพลง)</span></label>
+          <input type="text" name="lyric_theme" placeholder="rainy night city, deep sleep floating in clouds...">
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- วีดีโอ -->
+    <div class="section">
+      <div class="section-title">🎬 วีดีโอ & รูป</div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Image Style <span class="optional">(สไตล์รูป)</span></label>
+          <input type="text" name="image_style" placeholder="cinematic dark, ethereal soft, anime...">
+        </div>
+        <div class="field">
+          <label>Color Palette <span class="optional">(โทนสี)</span></label>
+          <input type="text" name="color_palette" placeholder="dark blue, neon / soft lavender, misty white...">
+        </div>
+        <div class="field">
+          <label>Video Style <span class="optional">(สไตล์วีดีโอ)</span></label>
+          <input type="text" name="video_style" placeholder="slow motion bokeh, slow drift...">
+        </div>
+        <div class="field">
+          <label>Aspect Ratio <span class="optional">(สัดส่วน)</span></label>
+          <select name="aspect_ratio">
+            <option value="">— ไม่ระบุ —</option>
+            <option value="16:9" selected>16:9 (YouTube)</option>
+            <option value="9:16">9:16 (Shorts/Reels)</option>
+            <option value="1:1">1:1 (Square)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Channel -->
+    <div class="section">
+      <div class="section-title">📺 Channel</div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Channel Name <span class="optional">(ชื่อช่อง)</span></label>
+          <input type="text" name="channel_name" placeholder="Chill Beats TH, Sleep Vibes TH...">
+        </div>
+        <div class="field">
+          <label>Target Language <span class="optional">(ภาษา)</span></label>
+          <select name="target_lang">
+            <option value="">— ไม่ระบุ —</option>
+            <option value="English" selected>English</option>
+            <option value="Thai">Thai</option>
+            <option value="Japanese">Japanese</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Tags Extra <span class="optional">(แท็กเพิ่มเติม)</span></label>
+          <input type="text" name="tags_extra" placeholder="no vocals, study music, sleep music...">
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">
+      ✦ สร้าง MV
+    </button>
+
+    <div id="result" class="result"></div>
+
+  </form>
+</div>
+
+<script>
+  const WEBHOOK_URL = 'https://n8n-4uwf.srv1586194.hstgr.cloud/webhook/music-factory';
+
+  document.getElementById('mvForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('submitBtn');
+    const result = document.getElementById('result');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>กำลังส่งคำสั่ง...';
+    result.className = 'result';
+    result.style.display = 'none';
+
+    const formData = new FormData(this);
+    const payload = {};
+
+    for (const [key, value] of formData.entries()) {
+      if (value.trim() !== '') {
+        if (key === 'duration_min') {
+          payload[key] = parseInt(value);
+        } else {
+          payload[key] = value.trim();
+        }
+      }
+    }
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success !== false) {
+        result.className = 'result success';
+        result.innerHTML = `
+          <div class="result-title">✅ ส่งคำสั่งสำเร็จ!</div>
+          <div class="result-detail">
+            Run ID: <strong>${data.run_id || '-'}</strong><br>
+            จำนวนเพลง: <strong>${data.song_count || '-'} เพลง</strong><br>
+            ${data.message || 'ตรวจสอบสถานะได้ใน Google Sheets'}
+          </div>
+        `;
+      } else {
+        throw new Error(data.message || 'เกิดข้อผิดพลาด');
+      }
+    } catch (err) {
+      result.className = 'result error';
+      result.innerHTML = `
+        <div class="result-title">❌ เกิดข้อผิดพลาด</div>
+        <div class="result-detail">${err.message}</div>
+      `;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '✦ สร้าง MV';
+  });
+</script>
+</body>
+</html>

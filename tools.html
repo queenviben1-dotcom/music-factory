@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Factory — Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#12121a; --surface2:#1a1a26; --surface3:#20202e;
+    --border:#2a2a3a; --border2:#3a3a50;
+    --accent:#7c3aed; --accent2:#06b6d4; --accent-dim:rgba(124,58,237,0.15);
+    --text:#e8e8f0; --muted:#6b6b8a;
+    --success:#10b981; --error:#ef4444;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+    background:radial-gradient(ellipse at 20% 20%,rgba(124,58,237,0.08) 0%,transparent 50%),
+               radial-gradient(ellipse at 80% 80%,rgba(6,182,212,0.06) 0%,transparent 50%);
+    pointer-events:none;z-index:0;}
+  .container{max-width:740px;margin:0 auto;padding:48px 24px;position:relative;z-index:1;}
+
+  header{margin-bottom:36px;text-align:center;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:4px;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    line-height:1;margin-bottom:4px;}
+  .subtitle{color:var(--muted);font-size:14px;letter-spacing:2px;text-transform:uppercase;}
+
+  .back-btn{display:inline-flex;align-items:center;gap:8px;
+    color:var(--muted);font-size:13px;text-decoration:none;
+    border:1px solid var(--border);border-radius:8px;padding:7px 14px;
+    transition:all 0.18s;margin-bottom:28px;}
+  .back-btn:hover{color:var(--text);border-color:var(--border2);}
+
+  .tool-card{background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:24px 28px;margin-bottom:24px;}
+  .tool-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;
+    color:var(--accent2);margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+  .tool-title::after{content:'';flex:1;height:1px;
+    background:linear-gradient(to right,var(--border),transparent);}
+  .tool-desc{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+
+  .url-label{font-size:12px;font-weight:500;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block;}
+  .url-input{width:100%;background:var(--surface2);border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-family:'Sarabun',sans-serif;
+    font-size:15px;font-weight:300;padding:14px 16px;outline:none;
+    transition:border-color 0.2s,box-shadow 0.2s;resize:none;}
+  .url-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+  .url-input::placeholder{color:var(--muted);opacity:0.5;}
+  .url-hint{font-size:12px;color:var(--muted);margin-top:6px;margin-bottom:16px;}
+
+  .error-box{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);
+    color:var(--error);border-radius:8px;padding:12px 16px;
+    font-size:13px;display:none;animation:fadeIn 0.2s ease;margin-bottom:12px;}
+  .result-box{background:var(--surface2);border:1px solid var(--border2);
+    border-radius:10px;padding:16px 20px;display:none;animation:fadeIn 0.25s ease;margin-bottom:0;}
+  .result-label{font-size:12px;font-weight:500;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .result-url{font-size:14px;color:var(--accent2);word-break:break-all;
+    line-height:1.7;margin-bottom:14px;
+    background:var(--surface3);border-radius:6px;padding:10px 14px;
+    border:1px solid var(--border);}
+  .copy-btn{background:var(--accent-dim);border:1px solid var(--accent);
+    color:#c4b5fd;border-radius:8px;padding:9px 20px;
+    font-family:'Sarabun',sans-serif;font-size:14px;font-weight:500;
+    cursor:pointer;transition:all 0.18s;}
+  .copy-btn:hover{background:rgba(124,58,237,0.25);}
+  .copy-btn.copied{background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.4);color:var(--success);}
+
+  .divider{height:1px;background:var(--border);margin:24px 0;}
+
+  .btn-convert{width:100%;padding:13px;
+    background:linear-gradient(135deg,var(--accent) 0%,#5b21b6 100%);
+    border:none;border-radius:8px;color:white;
+    font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;
+    cursor:pointer;transition:all 0.2s;margin-bottom:16px;}
+  .btn-convert:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,0.35);}
+
+  .batch-result{display:none;}
+  .batch-item{background:var(--surface3);border:1px solid var(--border);
+    border-radius:8px;padding:10px 14px;margin-bottom:8px;
+    display:flex;align-items:center;gap:10px;}
+  .batch-item-url{flex:1;font-size:13px;color:var(--accent2);
+    word-break:break-all;line-height:1.5;}
+  .batch-copy-btn{background:transparent;border:1px solid var(--border);
+    color:var(--muted);border-radius:6px;padding:5px 12px;
+    font-size:12px;cursor:pointer;transition:all 0.15s;flex-shrink:0;}
+  .batch-copy-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .batch-copy-btn.copied{color:var(--success);border-color:rgba(16,185,129,0.4);}
+
+  .version{text-align:center;color:var(--muted);font-size:12px;margin-top:40px;}
+
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .toast{position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:var(--surface2);border:1px solid var(--border2);
+    border-radius:8px;padding:10px 16px;font-size:13px;
+    color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,0.4);animation:fadeIn 0.25s ease;}
+  .toast.ok{border-color:rgba(16,185,129,0.4);color:var(--success);}
+  .toast.err{border-color:rgba(239,68,68,0.4);color:var(--error);}
+  @media(max-width:600px){.logo{font-size:40px;}.batch-item{flex-direction:column;align-items:flex-start;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">Music Factory</div>
+    <div class="subtitle">Tools</div>
+  </header>
+
+  <a href="index.html" class="back-btn">← กลับหน้าหลัก</a>
+
+  <div class="tool-card">
+    <div class="tool-title">🔗 Google Drive URL Converter</div>
+    <div class="tool-desc">แปลง Google Drive link เป็น Direct Download URL สำหรับใช้กับ ffmpeg, wget, หรือ n8n — วางแล้วแปลงอัตโนมัติเลย</div>
+
+    <!-- SINGLE -->
+    <span class="url-label">วาง Google Drive URL <span style="color:var(--border2);font-weight:300;text-transform:none;letter-spacing:0;">(อัตโนมัติ)</span></span>
+    <textarea id="urlInput" class="url-input" rows="3"
+      placeholder="https://drive.google.com/file/d/xxxxxxxxxx/view?usp=sharing"></textarea>
+    <div class="url-hint">รองรับ: /file/d/... และ uc?id=... ทุกรูปแบบ</div>
+
+    <div class="error-box" id="errorBox">⚠️ URL ไม่ถูกต้อง — ต้องเป็น Google Drive link เท่านั้น</div>
+
+    <div class="result-box" id="resultBox">
+      <div class="result-label">Direct Download URL</div>
+      <div class="result-url" id="resultUrl"></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyUrl()">📋 คัดลอก URL</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- BATCH -->
+    <span class="url-label">Batch <span style="color:var(--border2);font-weight:300;text-transform:none;letter-spacing:0;">(หลาย URL — 1 URL ต่อบรรทัด)</span></span>
+    <textarea id="batchInput" class="url-input" rows="6"
+      placeholder="https://drive.google.com/file/d/AAA/view&#10;https://drive.google.com/file/d/BBB/view&#10;https://drive.google.com/file/d/CCC/view"></textarea>
+    <div class="url-hint" style="margin-bottom:16px;">วางหลาย URL แล้วกดแปลงทั้งหมดได้เลย</div>
+
+    <button class="btn-convert" onclick="convertBatch()">⚡ แปลงทั้งหมด</button>
+
+    <div class="batch-result" id="batchResult">
+      <span class="url-label">ผลลัพธ์</span>
+      <div id="batchList"></div>
+      <button class="copy-btn" style="margin-top:12px;" onclick="copyAllBatch()">📋 คัดลอกทั้งหมด</button>
+    </div>
+  </div>
+
+  <div class="version">v1.0</div>
+</div>
+
+<script>
+function extractFileId(url) {
+  url = url.trim();
+  let m;
+  m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return m[1];
+  return null;
+}
+function makeDirectUrl(id) {
+  return `https://drive.google.com/uc?id=${id}&export=download&confirm=t`;
+}
+
+// SINGLE
+document.getElementById('urlInput').addEventListener('input', function() {
+  const input = this.value.trim();
+  const resultBox = document.getElementById('resultBox');
+  const errorBox = document.getElementById('errorBox');
+  resultBox.style.display = 'none';
+  errorBox.style.display = 'none';
+  if (!input) return;
+  if (!input.includes('drive.google.com') && !input.includes('docs.google.com')) {
+    errorBox.style.display = 'block'; return;
+  }
+  const id = extractFileId(input);
+  if (!id) { errorBox.style.display = 'block'; return; }
+  document.getElementById('resultUrl').textContent = makeDirectUrl(id);
+  resultBox.style.display = 'block';
+  const btn = document.getElementById('copyBtn');
+  btn.textContent = '📋 คัดลอก URL';
+  btn.className = 'copy-btn';
+});
+
+function copyUrl() {
+  const url = document.getElementById('resultUrl').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ คัดลอกแล้ว!';
+    btn.className = 'copy-btn copied';
+    setTimeout(() => { btn.textContent = '📋 คัดลอก URL'; btn.className = 'copy-btn'; }, 2000);
+  });
+}
+
+// BATCH
+let batchUrls = [];
+function convertBatch() {
+  const input = document.getElementById('batchInput').value.trim();
+  if (!input) { showToast('ใส่ URL ก่อนนะครับ', 'err'); return; }
+  const lines = input.split('\n').map(l => l.trim()).filter(l => l);
+  batchUrls = [];
+  const results = [];
+  lines.forEach(line => {
+    if (!line.includes('drive.google.com') && !line.includes('docs.google.com')) {
+      results.push({ ok:false, original:line }); return;
+    }
+    const id = extractFileId(line);
+    if (!id) { results.push({ ok:false, original:line }); return; }
+    const url = makeDirectUrl(id);
+    batchUrls.push(url);
+    results.push({ ok:true, url });
+  });
+  document.getElementById('batchList').innerHTML = results.map((r,i) => {
+    if (!r.ok) return `<div class="batch-item"><div class="batch-item-url" style="color:var(--error);">⚠️ แปลงไม่ได้: ${r.original.substring(0,80)}</div></div>`;
+    return `<div class="batch-item">
+      <div class="batch-item-url">${r.url}</div>
+      <button class="batch-copy-btn" onclick="copyBatchItem(this,'${r.url}')">คัดลอก</button>
+    </div>`;
+  }).join('');
+  document.getElementById('batchResult').style.display = 'block';
+  showToast(`แปลงสำเร็จ ${batchUrls.length}/${lines.length} URLs ✓`, 'ok');
+}
+
+function copyBatchItem(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✅';
+    btn.className = 'batch-copy-btn copied';
+    setTimeout(() => { btn.textContent = 'คัดลอก'; btn.className = 'batch-copy-btn'; }, 2000);
+  });
+}
+function copyAllBatch() {
+  if (!batchUrls.length) return;
+  navigator.clipboard.writeText(batchUrls.join('\n')).then(() => {
+    showToast(`คัดลอก ${batchUrls.length} URLs แล้ว ✓`, 'ok');
+  });
+}
+
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast'+(type?' '+type:'');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+</script>
+</body>
+</html>

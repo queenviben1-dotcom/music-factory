@@ -158,6 +158,16 @@
     border:2px solid rgba(255,255,255,0.3);border-top-color:white;
     border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px;}
   /* STATUS SECTION */
+  .job-item{background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:12px 16px;margin-bottom:8px;
+    transition:border-color 0.18s;}
+  .job-item:last-child{margin-bottom:0;}
+  .job-item-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+  .job-item-title{font-size:13px;font-weight:500;color:var(--text);flex:1;min-width:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .job-item-time{font-size:11px;color:var(--muted);}
+  .job-item-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .job-run-id{font-size:11px;color:var(--muted);}
   .status-section{background:var(--surface);border:1px solid var(--border);
     border-radius:12px;padding:20px 24px;margin-top:24px;}
   .status-section-title{font-family:'Bebas Neue',sans-serif;font-size:16px;
@@ -254,14 +264,11 @@
 
     <!-- STATUS SECTION -->
     <div class="status-section" id="status-section" style="display:none;">
-      <div class="status-section-title">📊 สถานะงาน</div>
-      <div class="status-row">
-        <span class="status-run-id" id="status-run-id"></span>
-        <span class="status-badge" id="status-badge">—</span>
-        <button class="btn-check-status" id="btn-check" onclick="checkStatus()">🔄 เช็คสถานะ</button>
-        <button class="btn-trigger-wf3" id="btn-wf3" style="display:none;" onclick="triggerWF3()">🎬 สั่ง Merge MV (WF3)</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div class="status-section-title" style="margin-bottom:0;">📊 งานล่าสุด</div>
+        <button class="btn-check-status" onclick="checkAllStatus()">🔄 เช็คทั้งหมด</button>
       </div>
-      <div class="status-msg" id="status-msg"></div>
+      <div id="job-list"></div>
     </div>
   </div>
 
@@ -419,17 +426,7 @@
       <button type="submit" class="submit-btn" id="submitBtn">✦ สร้าง MV</button>
       <div id="result" class="result"></div>
 
-      <!-- STATUS SECTION ADV -->
-      <div class="status-section" id="status-section-adv" style="display:none;">
-        <div class="status-section-title">📊 สถานะงาน</div>
-        <div class="status-row">
-          <span class="status-run-id" id="status-run-id-adv"></span>
-          <span class="status-badge" id="status-badge-adv">—</span>
-          <button class="btn-check-status" id="btn-check-adv" onclick="checkStatus('adv')">🔄 เช็คสถานะ</button>
-          <button class="btn-trigger-wf3" id="btn-wf3-adv" style="display:none;" onclick="triggerWF3('adv')">🎬 สั่ง Merge MV (WF3)</button>
-        </div>
-        <div class="status-msg" id="status-msg-adv"></div>
-      </div>
+      <!-- STATUS SECTION ADV (shares same job list) -->
     </form>
   </div>
 </div>
@@ -630,7 +627,7 @@ async function submitSimple(){
         <div class="result-detail">Run ID: <strong>${data.run_id||'-'}</strong><br>
         จำนวนเพลง: <strong>${data.song_count||'-'} เพลง</strong><br>
         ${data.message||'กำลังสร้างเพลง กดเช็คสถานะได้เลย'}</div>`;
-      if(data.run_id) showStatusSection(data.run_id, '');
+      if(data.run_id) addJob(data.run_id, songTitle||'ไม่มีชื่อ');
     } else throw new Error(data.message||'เกิดข้อผิดพลาด');
   }catch(err){
     result.className='result error';
@@ -660,7 +657,7 @@ document.getElementById('mvForm').addEventListener('submit',async function(e){
         <div class="result-detail">Run ID: <strong>${data.run_id||'-'}</strong><br>
         จำนวนเพลง: <strong>${data.song_count||'-'} เพลง</strong><br>
         ${data.message||'กำลังสร้างเพลง กดเช็คสถานะได้เลย'}</div>`;
-      if(data.run_id) showStatusSection(data.run_id, 'adv');
+      if(data.run_id) addJob(data.run_id, payload.song_title||'ไม่มีชื่อ');
     } else throw new Error(data.message||'เกิดข้อผิดพลาด');
   }catch(err){
     result.className='result error';
@@ -720,115 +717,143 @@ function selectStyleChip(containerId, inputId, idx, chipContainerId) {
 // STATUS
 const STATUS_LABELS = {
   pending_music:  { label:'🎵 กำลังสร้างเพลง...', cls:'pending' },
-  pending_image:  { label:'✅ เพลงเสร็จแล้ว! รอสร้างรูป', cls:'pending_image' },
+  pending_image:  { label:'✅ เพลงเสร็จแล้ว!', cls:'pending_image' },
   pending_merge:  { label:'🎬 กำลัง Merge MV...', cls:'pending_merge' },
   done:           { label:'🎉 เสร็จสมบูรณ์!', cls:'done' },
 };
+const JOBS_KEY = 'mf_jobs';
+const MAX_JOBS = 5;
 
-let currentRunId = '';
-
-function showStatusSection(runId, mode) {
-  currentRunId = runId;
-  const suffix = mode === 'adv' ? '-adv' : '';
-  const sec = document.getElementById('status-section' + (mode==='adv'?'-adv':''));
-  const runIdEl = document.getElementById('status-run-id' + (mode==='adv'?'-adv':''));
-  const badge = document.getElementById('status-badge' + (mode==='adv'?'-adv':''));
-  const msg = document.getElementById('status-msg' + (mode==='adv'?'-adv':''));
-  const wf3btn = document.getElementById('btn-wf3' + (mode==='adv'?'-adv':''));
-  if (!sec) return;
-  sec.style.display = '';
-  runIdEl.textContent = 'Run ID: ' + runId;
-  badge.textContent = '⏳ รอเช็คสถานะ';
-  badge.className = 'status-badge pending';
-  msg.textContent = 'กดเช็คสถานะเพื่อดูความคืบหน้า';
-  wf3btn.style.display = 'none';
-  localStorage.setItem('mf_last_run_id', runId);
-  localStorage.setItem('mf_last_run_mode', mode);
+function loadJobs() {
+  try { return JSON.parse(localStorage.getItem(JOBS_KEY)) || []; }
+  catch { return []; }
+}
+function saveJobs(jobs) {
+  localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
 }
 
-async function checkStatus(mode) {
-  const suffix = mode === 'adv' ? '-adv' : '';
-  const btn = document.getElementById('btn-check' + (mode==='adv'?'-adv':''));
-  const badge = document.getElementById('status-badge' + (mode==='adv'?'-adv':''));
-  const msg = document.getElementById('status-msg' + (mode==='adv'?'-adv':''));
-  const wf3btn = document.getElementById('btn-wf3' + (mode==='adv'?'-adv':''));
-  const runId = currentRunId || localStorage.getItem('mf_last_run_id');
-  if (!runId) { showToast('ยังไม่มี Run ID ครับ', 'err'); return; }
+function addJob(runId, title) {
+  const jobs = loadJobs();
+  // remove duplicate
+  const filtered = jobs.filter(j => j.runId !== runId);
+  filtered.unshift({ runId, title: title||'ไม่มีชื่อ', status:'pending_music', time: Date.now() });
+  // keep max 5
+  const trimmed = filtered.slice(0, MAX_JOBS);
+  saveJobs(trimmed);
+  renderJobList();
+  document.getElementById('status-section').style.display = '';
+}
 
-  btn.disabled = true;
-  btn.textContent = '⏳ กำลังเช็ค...';
+function updateJobStatus(runId, status, title, count) {
+  const jobs = loadJobs();
+  const job = jobs.find(j => j.runId === runId);
+  if (job) {
+    job.status = status;
+    if (title) job.title = title;
+    if (count) job.count = count;
+    saveJobs(jobs);
+    renderJobList();
+  }
+}
 
+function renderJobList() {
+  const jobs = loadJobs();
+  const list = document.getElementById('job-list');
+  if (!list) return;
+  if (!jobs.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;">ยังไม่มีงานครับ</div>'; return; }
+  list.innerHTML = jobs.map((job, i) => {
+    const info = STATUS_LABELS[job.status] || { label: job.status, cls: 'pending' };
+    const time = job.time ? new Date(job.time).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) : '';
+    const showWF3 = job.status === 'pending_image';
+    return `<div class="job-item" id="job-${i}">
+      <div class="job-item-top">
+        <div class="job-item-title">🎵 ${escHtml(job.title)}${job.count?' ('+job.count+' เพลง)':''}</div>
+        <span class="status-badge ${info.cls}">${info.label}</span>
+        <span class="job-item-time">${time}</span>
+      </div>
+      <div class="job-item-bottom">
+        <span class="job-run-id">${job.runId}</span>
+        <button class="btn-check-status" onclick="checkOneJob('${job.runId}', ${i})" id="check-btn-${i}">🔄 เช็ค</button>
+        ${showWF3 ? `<button class="btn-trigger-wf3" onclick="triggerWF3('${job.runId}', ${i})" id="wf3-btn-${i}">🎬 Merge MV</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function fetchSheet1() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1?key=${SHEETS_API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.values || [];
+}
+
+async function checkOneJob(runId, idx) {
+  const btn = document.getElementById(`check-btn-${idx}`);
+  if (btn) { btn.disabled=true; btn.textContent='⏳'; }
   try {
-    const SHEET1_NAME = 'Sheet1';
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET1_NAME)}?key=${SHEETS_API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const rows = data.values || [];
+    const rows = await fetchSheet1();
     const header = rows[0] || [];
     const runIdCol = header.indexOf('run_id');
     const statusCol = header.indexOf('status');
-    const songTitleCol = header.indexOf('song_title');
-    const songCountCol = header.indexOf('song_count');
-
+    const titleCol = header.indexOf('song_title');
+    const countCol = header.indexOf('song_count');
     const row = rows.slice(1).find(r => r[runIdCol] === runId);
-    if (!row) {
-      badge.textContent = '⏳ ยังไม่มีข้อมูล';
-      badge.className = 'status-badge pending';
-      msg.textContent = 'ยังไม่พบ run_id นี้ใน Sheet — อาจยังประมวลผลอยู่ครับ';
-      wf3btn.style.display = 'none';
+    if (row) {
+      const status = row[statusCol] || 'pending_music';
+      const title = titleCol>=0 ? row[titleCol] : '';
+      const count = countCol>=0 ? row[countCol] : '';
+      updateJobStatus(runId, status, title, count);
+      showToast('อัปเดตแล้ว ✓', 'ok');
     } else {
-      const status = row[statusCol] || 'unknown';
-      const info = STATUS_LABELS[status] || { label: status, cls: 'pending' };
-      badge.textContent = info.label;
-      badge.className = 'status-badge ' + info.cls;
-
-      const title = songTitleCol >= 0 ? row[songTitleCol] : '';
-      const count = songCountCol >= 0 ? row[songCountCol] : '';
-      msg.textContent = (title ? `🎵 ${title}` : '') + (count ? `  •  ${count} เพลง` : '');
-
-      // show WF3 button only when pending_image
-      if (status === 'pending_image') {
-        wf3btn.style.display = '';
-      } else {
-        wf3btn.style.display = 'none';
-      }
+      showToast('ยังไม่พบใน Sheet', '');
     }
-  } catch(e) {
-    msg.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
-  }
-
-  btn.disabled = false;
-  btn.textContent = '🔄 เช็คสถานะ';
+  } catch(e) { showToast('Error: '+e.message,'err'); }
+  if (btn) { btn.disabled=false; btn.textContent='🔄 เช็ค'; }
 }
 
-async function triggerWF3(mode) {
-  const btn = document.getElementById('btn-wf3' + (mode==='adv'?'-adv':''));
-  const runId = currentRunId || localStorage.getItem('mf_last_run_id');
-  if (!runId) { showToast('ไม่มี Run ID ครับ', 'err'); return; }
+async function checkAllStatus() {
+  const jobs = loadJobs();
+  if (!jobs.length) { showToast('ยังไม่มีงานครับ','err'); return; }
+  try {
+    const rows = await fetchSheet1();
+    const header = rows[0] || [];
+    const runIdCol = header.indexOf('run_id');
+    const statusCol = header.indexOf('status');
+    const titleCol = header.indexOf('song_title');
+    const countCol = header.indexOf('song_count');
+    jobs.forEach(job => {
+      const row = rows.slice(1).find(r => r[runIdCol] === job.runId);
+      if (row) {
+        job.status = row[statusCol] || job.status;
+        if (titleCol>=0 && row[titleCol]) job.title = row[titleCol];
+        if (countCol>=0 && row[countCol]) job.count = row[countCol];
+      }
+    });
+    saveJobs(jobs);
+    renderJobList();
+    showToast('อัปเดตทั้งหมดแล้ว ✓','ok');
+  } catch(e) { showToast('Error: '+e.message,'err'); }
+}
 
-  btn.disabled = true;
-  btn.textContent = '⏳ กำลังส่ง...';
-
+async function triggerWF3(runId, idx) {
+  const btn = document.getElementById(`wf3-btn-${idx}`);
+  if (btn) { btn.disabled=true; btn.textContent='⏳ กำลังส่ง...'; }
   try {
     const res = await fetch('https://n8n-4uwf.srv1586194.hstgr.cloud/webhook/trigger-wf3', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ run_id: runId, trigger: 'wf3' })
     });
     const data = await res.json();
     if (res.ok && data.success !== false) {
-      showToast('✅ สั่ง WF3 สำเร็จ! กำลัง Merge MV...', 'ok');
-      btn.style.display = 'none';
-      // update badge
-      const badge = document.getElementById('status-badge' + (mode==='adv'?'-adv':''));
-      badge.textContent = '🎬 กำลัง Merge MV...';
-      badge.className = 'status-badge pending_merge';
-    } else throw new Error(data.message || 'เกิดข้อผิดพลาด');
-  } catch(e) {
-    showToast('❌ ' + e.message, 'err');
-  }
-  btn.disabled = false;
-  btn.textContent = '🎬 สั่ง Merge MV (WF3)';
+      showToast('✅ สั่ง WF3 สำเร็จ!','ok');
+      updateJobStatus(runId, 'pending_merge');
+    } else throw new Error(data.message||'เกิดข้อผิดพลาด');
+  } catch(e) { showToast('❌ '+e.message,'err'); }
+  if (btn) { btn.disabled=false; btn.textContent='🎬 Merge MV'; }
+}
+
+function showStatusSection(runId, mode) {
+  // legacy - just add job
 }
 
 // INIT
@@ -844,12 +869,11 @@ async function triggerWF3(mode) {
   // load from cache first (instant), then fetch fresh from Sheets
   loadStyleChips();
   fetchStylesFromSheets().then(() => loadStyleChips());
-  // restore last run if exists
-  const lastRun = localStorage.getItem('mf_last_run_id');
-  const lastMode = localStorage.getItem('mf_last_run_mode') || '';
-  if (lastRun) {
-    currentRunId = lastRun;
-    showStatusSection(lastRun, lastMode);
+  // restore jobs from localStorage
+  const jobs = loadJobs();
+  if (jobs.length) {
+    document.getElementById('status-section').style.display = '';
+    renderJobList();
   }
 })();
 </script>

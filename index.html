@@ -157,6 +157,33 @@
   .spinner{display:inline-block;width:16px;height:16px;
     border:2px solid rgba(255,255,255,0.3);border-top-color:white;
     border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px;}
+  /* STATUS SECTION */
+  .status-section{background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:20px 24px;margin-top:24px;}
+  .status-section-title{font-family:'Bebas Neue',sans-serif;font-size:16px;
+    letter-spacing:2px;color:var(--accent2);margin-bottom:14px;}
+  .status-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+  .status-badge{display:inline-flex;align-items:center;gap:6px;
+    padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;}
+  .status-badge.pending{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;}
+  .status-badge.pending_image{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--success);}
+  .status-badge.pending_merge{background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.3);color:var(--accent2);}
+  .status-badge.done{background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.3);color:#c4b5fd;}
+  .status-badge.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:var(--error);}
+  .status-run-id{font-size:12px;color:var(--muted);}
+  .btn-check-status{background:transparent;border:1px solid var(--border2);
+    color:var(--text);border-radius:8px;padding:8px 16px;
+    font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;
+    cursor:pointer;transition:all 0.18s;}
+  .btn-check-status:hover{border-color:var(--accent2);color:var(--accent2);}
+  .btn-check-status:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-trigger-wf3{background:linear-gradient(135deg,var(--success) 0%,#059669 100%);
+    border:none;border-radius:8px;color:white;
+    font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;
+    padding:8px 18px;cursor:pointer;transition:all 0.18s;}
+  .btn-trigger-wf3:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(16,185,129,0.35);}
+  .btn-trigger-wf3:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .status-msg{font-size:13px;color:var(--muted);line-height:1.6;}
   .toast{position:fixed;bottom:24px;right:24px;z-index:9999;
     background:var(--surface2);border:1px solid var(--border2);
     border-radius:8px;padding:10px 16px;font-size:13px;
@@ -224,6 +251,18 @@
     </div>
     <button class="submit-btn" id="submitBtnSimple" onclick="submitSimple()">⚡ สร้าง MV เลย</button>
     <div id="result-simple" class="result"></div>
+
+    <!-- STATUS SECTION -->
+    <div class="status-section" id="status-section" style="display:none;">
+      <div class="status-section-title">📊 สถานะงาน</div>
+      <div class="status-row">
+        <span class="status-run-id" id="status-run-id"></span>
+        <span class="status-badge" id="status-badge">—</span>
+        <button class="btn-check-status" id="btn-check" onclick="checkStatus()">🔄 เช็คสถานะ</button>
+        <button class="btn-trigger-wf3" id="btn-wf3" style="display:none;" onclick="triggerWF3()">🎬 สั่ง Merge MV (WF3)</button>
+      </div>
+      <div class="status-msg" id="status-msg"></div>
+    </div>
   </div>
 
   <!-- ===== ADVANCED ===== -->
@@ -379,6 +418,18 @@
 
       <button type="submit" class="submit-btn" id="submitBtn">✦ สร้าง MV</button>
       <div id="result" class="result"></div>
+
+      <!-- STATUS SECTION ADV -->
+      <div class="status-section" id="status-section-adv" style="display:none;">
+        <div class="status-section-title">📊 สถานะงาน</div>
+        <div class="status-row">
+          <span class="status-run-id" id="status-run-id-adv"></span>
+          <span class="status-badge" id="status-badge-adv">—</span>
+          <button class="btn-check-status" id="btn-check-adv" onclick="checkStatus('adv')">🔄 เช็คสถานะ</button>
+          <button class="btn-trigger-wf3" id="btn-wf3-adv" style="display:none;" onclick="triggerWF3('adv')">🎬 สั่ง Merge MV (WF3)</button>
+        </div>
+        <div class="status-msg" id="status-msg-adv"></div>
+      </div>
     </form>
   </div>
 </div>
@@ -578,7 +629,8 @@ async function submitSimple(){
       result.innerHTML=`<div class="result-title">✅ ส่งคำสั่งสำเร็จ!</div>
         <div class="result-detail">Run ID: <strong>${data.run_id||'-'}</strong><br>
         จำนวนเพลง: <strong>${data.song_count||'-'} เพลง</strong><br>
-        ${data.message||'ตรวจสอบสถานะได้ใน Google Sheets'}</div>`;
+        ${data.message||'กำลังสร้างเพลง กดเช็คสถานะได้เลย'}</div>`;
+      if(data.run_id) showStatusSection(data.run_id, '');
     } else throw new Error(data.message||'เกิดข้อผิดพลาด');
   }catch(err){
     result.className='result error';
@@ -607,7 +659,8 @@ document.getElementById('mvForm').addEventListener('submit',async function(e){
       result.innerHTML=`<div class="result-title">✅ ส่งคำสั่งสำเร็จ!</div>
         <div class="result-detail">Run ID: <strong>${data.run_id||'-'}</strong><br>
         จำนวนเพลง: <strong>${data.song_count||'-'} เพลง</strong><br>
-        ${data.message||'ตรวจสอบสถานะได้ใน Google Sheets'}</div>`;
+        ${data.message||'กำลังสร้างเพลง กดเช็คสถานะได้เลย'}</div>`;
+      if(data.run_id) showStatusSection(data.run_id, 'adv');
     } else throw new Error(data.message||'เกิดข้อผิดพลาด');
   }catch(err){
     result.className='result error';
@@ -664,6 +717,120 @@ function selectStyleChip(containerId, inputId, idx, chipContainerId) {
   });
 }
 
+// STATUS
+const STATUS_LABELS = {
+  pending_music:  { label:'🎵 กำลังสร้างเพลง...', cls:'pending' },
+  pending_image:  { label:'✅ เพลงเสร็จแล้ว! รอสร้างรูป', cls:'pending_image' },
+  pending_merge:  { label:'🎬 กำลัง Merge MV...', cls:'pending_merge' },
+  done:           { label:'🎉 เสร็จสมบูรณ์!', cls:'done' },
+};
+
+let currentRunId = '';
+
+function showStatusSection(runId, mode) {
+  currentRunId = runId;
+  const suffix = mode === 'adv' ? '-adv' : '';
+  const sec = document.getElementById('status-section' + (mode==='adv'?'-adv':''));
+  const runIdEl = document.getElementById('status-run-id' + (mode==='adv'?'-adv':''));
+  const badge = document.getElementById('status-badge' + (mode==='adv'?'-adv':''));
+  const msg = document.getElementById('status-msg' + (mode==='adv'?'-adv':''));
+  const wf3btn = document.getElementById('btn-wf3' + (mode==='adv'?'-adv':''));
+  if (!sec) return;
+  sec.style.display = '';
+  runIdEl.textContent = 'Run ID: ' + runId;
+  badge.textContent = '⏳ รอเช็คสถานะ';
+  badge.className = 'status-badge pending';
+  msg.textContent = 'กดเช็คสถานะเพื่อดูความคืบหน้า';
+  wf3btn.style.display = 'none';
+  localStorage.setItem('mf_last_run_id', runId);
+  localStorage.setItem('mf_last_run_mode', mode);
+}
+
+async function checkStatus(mode) {
+  const suffix = mode === 'adv' ? '-adv' : '';
+  const btn = document.getElementById('btn-check' + (mode==='adv'?'-adv':''));
+  const badge = document.getElementById('status-badge' + (mode==='adv'?'-adv':''));
+  const msg = document.getElementById('status-msg' + (mode==='adv'?'-adv':''));
+  const wf3btn = document.getElementById('btn-wf3' + (mode==='adv'?'-adv':''));
+  const runId = currentRunId || localStorage.getItem('mf_last_run_id');
+  if (!runId) { showToast('ยังไม่มี Run ID ครับ', 'err'); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังเช็ค...';
+
+  try {
+    const SHEET1_NAME = 'Sheet1';
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET1_NAME)}?key=${SHEETS_API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const rows = data.values || [];
+    const header = rows[0] || [];
+    const runIdCol = header.indexOf('run_id');
+    const statusCol = header.indexOf('status');
+    const songTitleCol = header.indexOf('song_title');
+    const songCountCol = header.indexOf('song_count');
+
+    const row = rows.slice(1).find(r => r[runIdCol] === runId);
+    if (!row) {
+      badge.textContent = '⏳ ยังไม่มีข้อมูล';
+      badge.className = 'status-badge pending';
+      msg.textContent = 'ยังไม่พบ run_id นี้ใน Sheet — อาจยังประมวลผลอยู่ครับ';
+      wf3btn.style.display = 'none';
+    } else {
+      const status = row[statusCol] || 'unknown';
+      const info = STATUS_LABELS[status] || { label: status, cls: 'pending' };
+      badge.textContent = info.label;
+      badge.className = 'status-badge ' + info.cls;
+
+      const title = songTitleCol >= 0 ? row[songTitleCol] : '';
+      const count = songCountCol >= 0 ? row[songCountCol] : '';
+      msg.textContent = (title ? `🎵 ${title}` : '') + (count ? `  •  ${count} เพลง` : '');
+
+      // show WF3 button only when pending_image
+      if (status === 'pending_image') {
+        wf3btn.style.display = '';
+      } else {
+        wf3btn.style.display = 'none';
+      }
+    }
+  } catch(e) {
+    msg.textContent = 'เกิดข้อผิดพลาด: ' + e.message;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔄 เช็คสถานะ';
+}
+
+async function triggerWF3(mode) {
+  const btn = document.getElementById('btn-wf3' + (mode==='adv'?'-adv':''));
+  const runId = currentRunId || localStorage.getItem('mf_last_run_id');
+  if (!runId) { showToast('ไม่มี Run ID ครับ', 'err'); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังส่ง...';
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ run_id: runId, trigger: 'wf3' })
+    });
+    const data = await res.json();
+    if (res.ok && data.success !== false) {
+      showToast('✅ สั่ง WF3 สำเร็จ! กำลัง Merge MV...', 'ok');
+      btn.style.display = 'none';
+      // update badge
+      const badge = document.getElementById('status-badge' + (mode==='adv'?'-adv':''));
+      badge.textContent = '🎬 กำลัง Merge MV...';
+      badge.className = 'status-badge pending_merge';
+    } else throw new Error(data.message || 'เกิดข้อผิดพลาด');
+  } catch(e) {
+    showToast('❌ ' + e.message, 'err');
+  }
+  btn.disabled = false;
+  btn.textContent = '🎬 สั่ง Merge MV (WF3)';
+}
+
 // INIT
 (function init(){
   const comboFields=['genre','mood','music_style','duration_min','tempo','key','lyric_theme','color_palette','video_style','aspect_ratio','channel_name','target_lang','tags_extra'];
@@ -677,6 +844,13 @@ function selectStyleChip(containerId, inputId, idx, chipContainerId) {
   // load from cache first (instant), then fetch fresh from Sheets
   loadStyleChips();
   fetchStylesFromSheets().then(() => loadStyleChips());
+  // restore last run if exists
+  const lastRun = localStorage.getItem('mf_last_run_id');
+  const lastMode = localStorage.getItem('mf_last_run_mode') || '';
+  if (lastRun) {
+    currentRunId = lastRun;
+    showStatusSection(lastRun, lastMode);
+  }
 })();
 </script>
 </body>

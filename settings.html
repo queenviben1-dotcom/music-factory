@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Factory — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#12121a; --surface2:#1a1a26; --surface3:#20202e;
+    --border:#2a2a3a; --border2:#3a3a50;
+    --accent:#7c3aed; --accent2:#06b6d4; --accent-dim:rgba(124,58,237,0.15);
+    --text:#e8e8f0; --muted:#6b6b8a;
+    --success:#10b981; --error:#ef4444;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+    background:radial-gradient(ellipse at 20% 20%,rgba(124,58,237,0.08) 0%,transparent 50%),
+               radial-gradient(ellipse at 80% 80%,rgba(6,182,212,0.06) 0%,transparent 50%);
+    pointer-events:none;z-index:0;}
+  .container{max-width:740px;margin:0 auto;padding:48px 24px;position:relative;z-index:1;}
+
+  /* HEADER */
+  header{margin-bottom:36px;text-align:center;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:4px;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    line-height:1;margin-bottom:4px;}
+  .subtitle{color:var(--muted);font-size:14px;letter-spacing:2px;text-transform:uppercase;}
+  .back-btn{display:inline-flex;align-items:center;gap:8px;
+    color:var(--muted);font-size:13px;text-decoration:none;
+    border:1px solid var(--border);border-radius:8px;padding:7px 14px;
+    transition:all 0.18s;margin-bottom:28px;}
+  .back-btn:hover{color:var(--text);border-color:var(--border2);}
+
+  /* SECTION */
+  .section{background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--accent2);}
+  .section-count{background:var(--accent-dim);border:1px solid var(--accent);
+    color:#c4b5fd;border-radius:20px;padding:2px 10px;font-size:12px;}
+
+  /* STYLE LIST */
+  .style-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+  .style-item{background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:14px 16px;
+    display:flex;align-items:flex-start;gap:12px;
+    transition:border-color 0.18s;}
+  .style-item:hover{border-color:var(--border2);}
+  .style-item-info{flex:1;min-width:0;}
+  .style-item-name{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px;}
+  .style-item-preview{font-size:12px;color:var(--muted);line-height:1.5;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .style-item-actions{display:flex;gap:6px;flex-shrink:0;}
+  .btn-edit{background:transparent;border:1px solid var(--border);
+    color:var(--muted);border-radius:6px;padding:5px 10px;
+    font-size:12px;cursor:pointer;transition:all 0.15s;}
+  .btn-edit:hover{border-color:var(--accent2);color:var(--accent2);}
+  .btn-delete{background:transparent;border:1px solid var(--border);
+    color:var(--muted);border-radius:6px;padding:5px 10px;
+    font-size:12px;cursor:pointer;transition:all 0.15s;}
+  .btn-delete:hover{border-color:var(--error);color:var(--error);}
+  .style-empty{color:var(--muted);font-size:13px;padding:8px 0;text-align:center;}
+
+  /* ADD FORM */
+  .add-form{border-top:1px solid var(--border);padding-top:16px;}
+  .add-form-title{font-size:13px;font-weight:500;color:var(--muted);
+    letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+  .field-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+  .field-col{display:flex;flex-direction:column;gap:6px;flex:1;}
+  .field-label-sm{font-size:11px;font-weight:500;letter-spacing:1.2px;
+    text-transform:uppercase;color:var(--muted);}
+  .text-input{background:var(--surface3);border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-family:'Sarabun',sans-serif;
+    font-size:14px;font-weight:300;padding:10px 12px;outline:none;width:100%;
+    transition:border-color 0.2s,box-shadow 0.2s;}
+  .text-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+  .text-input::placeholder{color:var(--muted);opacity:0.5;}
+  textarea.text-input{resize:vertical;min-height:80px;}
+  .btn-add{background:linear-gradient(135deg,var(--accent) 0%,#5b21b6 100%);
+    border:none;border-radius:8px;color:white;
+    font-family:'Sarabun',sans-serif;font-size:14px;font-weight:500;
+    padding:10px 20px;cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+  .btn-add:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,0.35);}
+  .btn-update{background:var(--accent-dim);border:1px solid var(--accent);
+    color:#c4b5fd;border-radius:8px;padding:10px 20px;
+    font-family:'Sarabun',sans-serif;font-size:14px;font-weight:500;
+    cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+  .btn-update:hover{background:rgba(124,58,237,0.25);}
+  .btn-cancel{background:transparent;border:1px solid var(--border);
+    color:var(--muted);border-radius:8px;padding:10px 16px;
+    font-family:'Sarabun',sans-serif;font-size:14px;
+    cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+  .btn-cancel:hover{border-color:var(--border2);color:var(--text);}
+
+  /* TOAST */
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes chipIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+  .toast{position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:var(--surface2);border:1px solid var(--border2);
+    border-radius:8px;padding:10px 16px;font-size:13px;
+    color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,0.4);animation:fadeIn 0.25s ease;}
+  .toast.ok{border-color:rgba(16,185,129,0.4);color:var(--success);}
+  .toast.err{border-color:rgba(239,68,68,0.4);color:var(--error);}
+
+  @media(max-width:600px){
+    .field-row{flex-direction:column;}
+    .logo{font-size:40px;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">Music Factory</div>
+    <div class="subtitle">Settings</div>
+  </header>
+
+  <a href="index.html" class="back-btn">← กลับหน้าหลัก</a>
+
+  <!-- MUSIC STYLES -->
+  <div class="section" id="music-section">
+    <div class="section-header">
+      <div class="section-title">🎵 Music Styles</div>
+      <div class="section-count" id="music-count">0</div>
+    </div>
+
+    <div class="style-list" id="music-list">
+      <div class="style-empty">ยังไม่มี Music Style — เพิ่มด้านล่างได้เลย</div>
+    </div>
+
+    <div class="add-form">
+      <div class="add-form-title" id="music-form-title">➕ เพิ่ม Music Style</div>
+      <div class="field-row">
+        <div class="field-col" style="max-width:220px;">
+          <span class="field-label-sm">ชื่อ Style</span>
+          <input id="music-name" class="text-input" placeholder="เช่น Lo-fi Chill, Dark Ambient...">
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span class="field-label-sm" style="display:block;margin-bottom:6px;">Suno Style Prompt</span>
+        <textarea id="music-prompt" class="text-input" rows="3" placeholder="เช่น lo-fi hip hop, rainy night, chill, piano, female vocal, slow tempo..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-add" id="music-add-btn" onclick="addMusicStyle()">➕ เพิ่ม</button>
+        <button class="btn-cancel" id="music-cancel-btn" style="display:none;" onclick="cancelEditMusic()">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE STYLES -->
+  <div class="section" id="image-section">
+    <div class="section-header">
+      <div class="section-title">🖼️ Image Styles</div>
+      <div class="section-count" id="image-count">0</div>
+    </div>
+
+    <div class="style-list" id="image-list">
+      <div class="style-empty">ยังไม่มี Image Style — เพิ่มด้านล่างได้เลย</div>
+    </div>
+
+    <div class="add-form">
+      <div class="add-form-title" id="image-form-title">➕ เพิ่ม Image Style</div>
+      <div class="field-row">
+        <div class="field-col" style="max-width:220px;">
+          <span class="field-label-sm">ชื่อ Style</span>
+          <input id="image-name" class="text-input" placeholder="เช่น Dark Cinematic, Anime Soft...">
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <span class="field-label-sm" style="display:block;margin-bottom:6px;">Image Prompt</span>
+        <textarea id="image-prompt" class="text-input" rows="3" placeholder="เช่น cinematic dark scene, dramatic lighting, 8k, photorealistic, deep navy blue tones..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-add" id="image-add-btn" onclick="addImageStyle()">➕ เพิ่ม</button>
+        <button class="btn-cancel" id="image-cancel-btn" style="display:none;" onclick="cancelEditImage()">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SHEET_ID = '14r1aWQnusfz4oYamPQ6S6wQLutHdhWv3eFDq0MmplKU';
+const SHEET_NAME = 'Data';
+const API_KEY = 'AIzaSyCQems9qLM5-olEB9NUAklf-vHgoyPHOdI';
+const MUSIC_KEY = 'mf_music_styles_cache';
+const IMAGE_KEY = 'mf_image_styles_cache';
+
+let editingMusic = null;
+let editingImage = null;
+
+// =================== STORAGE ===================
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function fetchAllStyles() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const rows = (data.values || []).slice(1); // skip header
+    const music = [], image = [];
+    rows.forEach(r => {
+      if (!r[0]||!r[1]||!r[2]) return;
+      const obj = { name: r[1], prompt: r[2] };
+      if (r[0].toLowerCase() === 'music') music.push(obj);
+      else if (r[0].toLowerCase() === 'image') image.push(obj);
+    });
+    localStorage.setItem(MUSIC_KEY, JSON.stringify(music));
+    localStorage.setItem(IMAGE_KEY, JSON.stringify(image));
+    return { music, image };
+  } catch(e) {
+    console.error('Sheets fetch error:', e);
+    return { music: [], image: [] };
+  }
+}
+
+async function appendToSheet(type, name, prompt) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}:append?valueInputOption=RAW&key=${API_KEY}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [[type, name, prompt]] })
+  });
+  if (!res.ok) throw new Error('Sheets append failed');
+}
+
+async function updateSheetRow(rowIndex, type, name, prompt) {
+  // rowIndex is 0-based data row (excluding header), so actual row = rowIndex + 2
+  const range = `${SHEET_NAME}!A${rowIndex+2}:C${rowIndex+2}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=RAW&key=${API_KEY}`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [[type, name, prompt]] })
+  });
+  if (!res.ok) throw new Error('Sheets update failed');
+}
+
+async function deleteSheetRow(rowIndex) {
+  // Need to use batchUpdate to delete a row
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate?key=${API_KEY}`;
+  // First get sheet gid
+  const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?key=${API_KEY}`;
+  const metaRes = await fetch(metaUrl);
+  const meta = await metaRes.json();
+  const sheet = meta.sheets.find(s => s.properties.title === SHEET_NAME);
+  const sheetId = sheet.properties.sheetId;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: sheetId,
+            dimension: 'ROWS',
+            startIndex: rowIndex + 1, // +1 for header
+            endIndex: rowIndex + 2
+          }
+        }
+      }]
+    })
+  });
+  if (!res.ok) throw new Error('Sheets delete failed');
+}
+
+async function getAllRows() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return (data.values || []).slice(1).filter(r => r[0] && r[1] && r[2]);
+}
+
+function loadStyles(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; }
+  catch { return []; }
+}
+
+// =================== RENDER ===================
+function renderMusicList() {
+  const styles = loadStyles(MUSIC_KEY);
+  const list = document.getElementById('music-list');
+  const count = document.getElementById('music-count');
+  count.textContent = styles.length;
+  if (!styles.length) {
+    list.innerHTML = '<div class="style-empty">ยังไม่มี Music Style — เพิ่มด้านล่างได้เลย</div>';
+    return;
+  }
+  list.innerHTML = styles.map((s, i) => `
+    <div class="style-item" id="ms-${i}">
+      <div class="style-item-info">
+        <div class="style-item-name">🎵 ${escHtml(s.name)}</div>
+        <div class="style-item-preview">${escHtml(s.prompt)}</div>
+      </div>
+      <div class="style-item-actions">
+        <button class="btn-edit" onclick="editMusic(${i})">✏️ แก้ไข</button>
+        <button class="btn-delete" onclick="deleteMusic(${i})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderImageList() {
+  const styles = loadStyles(IMAGE_KEY);
+  const list = document.getElementById('image-list');
+  const count = document.getElementById('image-count');
+  count.textContent = styles.length;
+  if (!styles.length) {
+    list.innerHTML = '<div class="style-empty">ยังไม่มี Image Style — เพิ่มด้านล่างได้เลย</div>';
+    return;
+  }
+  list.innerHTML = styles.map((s, i) => `
+    <div class="style-item" id="is-${i}">
+      <div class="style-item-info">
+        <div class="style-item-name">🖼️ ${escHtml(s.name)}</div>
+        <div class="style-item-preview">${escHtml(s.prompt)}</div>
+      </div>
+      <div class="style-item-actions">
+        <button class="btn-edit" onclick="editImage(${i})">✏️ แก้ไข</button>
+        <button class="btn-delete" onclick="deleteImage(${i})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+// =================== MUSIC ACTIONS ===================
+async function addMusicStyle() {
+  const name = document.getElementById('music-name').value.trim();
+  const prompt = document.getElementById('music-prompt').value.trim();
+  if (!name) { showToast('ใส่ชื่อ Style ก่อนนะครับ', 'err'); return; }
+  if (!prompt) { showToast('ใส่ prompt ก่อนนะครับ', 'err'); return; }
+
+  const styles = loadStyles(MUSIC_KEY);
+  showLoading(true);
+  try {
+    if (editingMusic !== null) {
+      // find actual sheet row for this music item
+      const allRows = await getAllRows();
+      const musicRows = allRows.filter(r => r[0]==='music');
+      const rowIdx = allRows.indexOf(musicRows[editingMusic]);
+      await updateSheetRow(rowIdx, 'music', name, prompt);
+      showToast(`อัปเดต "${name}" แล้ว ✓`, 'ok');
+      cancelEditMusic();
+    } else {
+      if (styles.find(s => s.name === name)) { showLoading(false); showToast('ชื่อนี้มีอยู่แล้วครับ', 'err'); return; }
+      await appendToSheet('music', name, prompt);
+      showToast(`เพิ่ม "${name}" แล้ว ✓`, 'ok');
+      document.getElementById('music-name').value = '';
+      document.getElementById('music-prompt').value = '';
+    }
+    await fetchAllStyles();
+    renderMusicList();
+  } catch(e) {
+    showToast('เกิดข้อผิดพลาด: ' + e.message, 'err');
+  }
+  showLoading(false);
+}
+
+function editMusic(i) {
+  const styles = loadStyles(MUSIC_KEY);
+  const s = styles[i];
+  editingMusic = i;
+  document.getElementById('music-name').value = s.name;
+  document.getElementById('music-prompt').value = s.prompt;
+  document.getElementById('music-form-title').textContent = `✏️ แก้ไข "${s.name}"`;
+  document.getElementById('music-add-btn').className = 'btn-update';
+  document.getElementById('music-add-btn').textContent = '💾 บันทึก';
+  document.getElementById('music-add-btn').onclick = addMusicStyle;
+  document.getElementById('music-cancel-btn').style.display = '';
+  document.getElementById('music-name').focus();
+  document.getElementById('music-section').scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function cancelEditMusic() {
+  editingMusic = null;
+  document.getElementById('music-name').value = '';
+  document.getElementById('music-prompt').value = '';
+  document.getElementById('music-form-title').textContent = '➕ เพิ่ม Music Style';
+  document.getElementById('music-add-btn').className = 'btn-add';
+  document.getElementById('music-add-btn').textContent = '➕ เพิ่ม';
+  document.getElementById('music-add-btn').onclick = addMusicStyle;
+  document.getElementById('music-cancel-btn').style.display = 'none';
+}
+
+async function deleteMusic(i) {
+  const styles = loadStyles(MUSIC_KEY);
+  const name = styles[i].name;
+  showLoading(true);
+  try {
+    const allRows = await getAllRows();
+    const musicRows = allRows.filter(r => r[0]==='music');
+    const rowIdx = allRows.indexOf(musicRows[i]);
+    await deleteSheetRow(rowIdx);
+    await fetchAllStyles();
+    renderMusicList();
+    showToast(`ลบ "${name}" แล้ว`, '');
+    if (editingMusic === i) cancelEditMusic();
+  } catch(e) {
+    showToast('เกิดข้อผิดพลาด: ' + e.message, 'err');
+  }
+  showLoading(false);
+}
+
+// =================== IMAGE ACTIONS ===================
+async function addImageStyle() {
+  const name = document.getElementById('image-name').value.trim();
+  const prompt = document.getElementById('image-prompt').value.trim();
+  if (!name) { showToast('ใส่ชื่อ Style ก่อนนะครับ', 'err'); return; }
+  if (!prompt) { showToast('ใส่ prompt ก่อนนะครับ', 'err'); return; }
+
+  const styles = loadStyles(IMAGE_KEY);
+  showLoading(true);
+  try {
+    if (editingImage !== null) {
+      const allRows = await getAllRows();
+      const imageRows = allRows.filter(r => r[0]==='image');
+      const rowIdx = allRows.indexOf(imageRows[editingImage]);
+      await updateSheetRow(rowIdx, 'image', name, prompt);
+      showToast(`อัปเดต "${name}" แล้ว ✓`, 'ok');
+      cancelEditImage();
+    } else {
+      if (styles.find(s => s.name === name)) { showLoading(false); showToast('ชื่อนี้มีอยู่แล้วครับ', 'err'); return; }
+      await appendToSheet('image', name, prompt);
+      showToast(`เพิ่ม "${name}" แล้ว ✓`, 'ok');
+      document.getElementById('image-name').value = '';
+      document.getElementById('image-prompt').value = '';
+    }
+    await fetchAllStyles();
+    renderImageList();
+  } catch(e) {
+    showToast('เกิดข้อผิดพลาด: ' + e.message, 'err');
+  }
+  showLoading(false);
+}
+
+function editImage(i) {
+  const styles = loadStyles(IMAGE_KEY);
+  const s = styles[i];
+  editingImage = i;
+  document.getElementById('image-name').value = s.name;
+  document.getElementById('image-prompt').value = s.prompt;
+  document.getElementById('image-form-title').textContent = `✏️ แก้ไข "${s.name}"`;
+  document.getElementById('image-add-btn').className = 'btn-update';
+  document.getElementById('image-add-btn').textContent = '💾 บันทึก';
+  document.getElementById('image-add-btn').onclick = addImageStyle;
+  document.getElementById('image-cancel-btn').style.display = '';
+  document.getElementById('image-name').focus();
+  document.getElementById('image-section').scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function cancelEditImage() {
+  editingImage = null;
+  document.getElementById('image-name').value = '';
+  document.getElementById('image-prompt').value = '';
+  document.getElementById('image-form-title').textContent = '➕ เพิ่ม Image Style';
+  document.getElementById('image-add-btn').className = 'btn-add';
+  document.getElementById('image-add-btn').textContent = '➕ เพิ่ม';
+  document.getElementById('image-add-btn').onclick = addImageStyle;
+  document.getElementById('image-cancel-btn').style.display = 'none';
+}
+
+async function deleteImage(i) {
+  const styles = loadStyles(IMAGE_KEY);
+  const name = styles[i].name;
+  showLoading(true);
+  try {
+    const allRows = await getAllRows();
+    const imageRows = allRows.filter(r => r[0]==='image');
+    const rowIdx = allRows.indexOf(imageRows[i]);
+    await deleteSheetRow(rowIdx);
+    await fetchAllStyles();
+    renderImageList();
+    showToast(`ลบ "${name}" แล้ว`, '');
+    if (editingImage === i) cancelEditImage();
+  } catch(e) {
+    showToast('เกิดข้อผิดพลาด: ' + e.message, 'err');
+  }
+  showLoading(false);
+}
+
+// =================== TOAST ===================
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+// =================== INIT ===================
+async function init() {
+  showLoading(true);
+  await fetchAllStyles();
+  showLoading(false);
+  renderMusicList();
+  renderImageList();
+}
+
+function showLoading(show) {
+  let el = document.getElementById('loading-bar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-bar';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:9999;transition:opacity 0.3s;';
+    document.body.appendChild(el);
+  }
+  el.style.opacity = show ? '1' : '0';
+}
+
+init();
+</script>
+</body>
+</html>

@@ -145,6 +145,12 @@
   .result-title{font-weight:600;font-size:15px;margin-bottom:6px;}
   .result-detail{opacity:0.8;line-height:1.6;}
 
+  .style-chip{display:inline-flex;align-items:center;gap:4px;
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:16px;padding:4px 12px;font-size:12px;color:var(--text);
+    cursor:pointer;transition:all 0.15s;}
+  .style-chip:hover{border-color:var(--accent2);color:var(--accent2);}
+  .style-chip.active{background:var(--accent-dim);border-color:var(--accent);color:#c4b5fd;}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes chipIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
@@ -165,6 +171,7 @@
   <header>
     <div class="logo">Music Factory</div>
     <div class="subtitle">สร้าง MV อัตโนมัติด้วย AI</div>
+    <a href="settings.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;color:var(--muted);font-size:13px;text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px;transition:all 0.18s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--border2)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">⚙️ จัดการ Styles</a>
   </header>
 
   <!-- TABS -->
@@ -195,11 +202,17 @@
       </div>
       <div class="field full">
         <span class="field-label">Styles <span class="opt">(เหมือนช่อง Styles ของ Suno — คั่นด้วย comma)</span></span>
-        <textarea id="s-styles" class="plain-input plain-textarea" rows="3" placeholder="เช่น lo-fi hip hop, rainy night, chill, piano, female vocal..."></textarea>
+        <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;" id="s-music-style-chips"></div>
+        <textarea id="s-styles" class="plain-input plain-textarea" rows="3" placeholder="เลือกจาก style ที่บันทึกไว้ด้านบน หรือพิมพ์เองได้เลย..."></textarea>
       </div>
       <div class="field full">
         <span class="field-label">Lyrics <span class="opt">(เนื้อเพลง — เว้นว่างถ้าต้องการ instrumental)</span></span>
         <textarea id="s-lyrics" class="plain-input plain-textarea" rows="4" placeholder="ใส่เนื้อเพลง หรือเว้นว่างไว้สำหรับ instrumental..."></textarea>
+      </div>
+      <div class="field full">
+        <span class="field-label">Image Style <span class="opt">(prompt รูปภาพ)</span></span>
+        <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;" id="s-image-style-chips"></div>
+        <textarea id="s-image_style" class="plain-input plain-textarea" rows="2" placeholder="เลือกจาก style ที่บันทึกไว้ด้านบน หรือพิมพ์เองได้เลย..."></textarea>
       </div>
       <div class="field">
         <span class="field-label">ความยาว <span class="opt">(นาที)</span></span>
@@ -226,7 +239,8 @@
           </div>
           <div class="field full">
             <label>Styles <span class="optional">(genre + mood + instrument รวมกัน เหมือน Suno)</span></label>
-            <textarea id="f-styles" class="combo-input plain-textarea" style="padding:11px 14px;resize:vertical;min-height:72px;" placeholder="เช่น lo-fi hip hop, dreamy, piano, female vocal..." autocomplete="off"></textarea>
+            <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;" id="f-music-style-chips"></div>
+            <textarea id="f-styles" class="combo-input plain-textarea" style="padding:11px 14px;resize:vertical;min-height:72px;" placeholder="เลือกจาก style ที่บันทึกไว้ หรือพิมพ์เองได้เลย..." autocomplete="off"></textarea>
           </div>
           <div class="field">
             <label>Genre <span class="optional">(ประเภท)</span></label>
@@ -299,13 +313,10 @@
       <div class="section">
         <div class="section-title">🎬 วีดีโอ & รูป</div>
         <div class="grid-2">
-          <div class="field">
-            <label>Image Style <span class="optional">(สไตล์รูป)</span></label>
-            <div class="combo-wrapper" id="cw-image_style">
-              <input class="combo-input" id="f-image_style" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
-              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
-              <div class="combo-dropdown" id="dd-image_style"></div>
-            </div>
+          <div class="field full">
+            <label>Image Style <span class="optional">(prompt รูปภาพ)</span></label>
+            <div style="display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap;" id="f-image-style-chips"></div>
+            <textarea id="f-image_style" class="combo-input plain-textarea" style="padding:11px 14px;resize:vertical;min-height:72px;" placeholder="เลือกจาก style ที่บันทึกไว้ หรือพิมพ์เองได้เลย..." autocomplete="off"></textarea>
           </div>
           <div class="field">
             <label>Color Palette <span class="optional">(โทนสี)</span></label>
@@ -375,6 +386,11 @@
 <script>
 const WEBHOOK_URL = 'https://n8n-4uwf.srv1586194.hstgr.cloud/webhook/music-factory';
 const STORAGE_KEY = 'mf_presets_v3';
+const SHEET_ID = '14r1aWQnusfz4oYamPQ6S6wQLutHdhWv3eFDq0MmplKU';
+const SHEET_NAME = 'Data';
+const SHEETS_API_KEY = 'AIzaSyCQems9qLM5-olEB9NUAklf-vHgoyPHOdI';
+const MUSIC_STYLES_CACHE = 'mf_music_styles_cache';
+const IMAGE_STYLES_CACHE = 'mf_image_styles_cache';
 
 const OPTIONS = {
   genre:['ambient sleep','lo-fi hip hop','chillhop','dark ambient','cinematic','new age','nature sounds','meditation','jazz lounge','classical piano','study music','rain & thunder','white noise','soft electronic','ethereal'],
@@ -458,6 +474,8 @@ function highlightOpt(fieldName,idx){
 
 // PRESET
 const ADV_FIELDS = ['song_title','styles','lyrics','genre','mood','music_style','duration_min','tempo','key','lyric_theme','image_style','color_palette','video_style','aspect_ratio','channel_name','target_lang','tags_extra'];
+const MUSIC_STYLES_KEY = MUSIC_STYLES_CACHE;
+const IMAGE_STYLES_KEY = IMAGE_STYLES_CACHE;
 
 function loadPresets(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch{return[];}}
 function savePresetsToStorage(p){localStorage.setItem(STORAGE_KEY,JSON.stringify(p));}
@@ -468,6 +486,7 @@ function getAllFormData() {
     s_song_title: document.getElementById('s-song_title')?.value?.trim()||'',
     s_styles: document.getElementById('s-styles')?.value?.trim()||'',
     s_lyrics: document.getElementById('s-lyrics')?.value?.trim()||'',
+    s_image_style: document.getElementById('s-image_style')?.value?.trim()||'',
     s_dur: document.getElementById('s-duration_min')?.value||'6',
     ...Object.fromEntries(ADV_FIELDS.map(f=>[f, document.getElementById('f-'+f)?.value?.trim()||'']))
   };
@@ -479,6 +498,8 @@ function setAllFormData(data) {
   if (sStyles) sStyles.value = data.s_styles||'';
   const sLyrics = document.getElementById('s-lyrics');
   if (sLyrics) sLyrics.value = data.s_lyrics||'';
+  const sImg = document.getElementById('s-image_style');
+  if (sImg) sImg.value = data.s_image_style||'';
   document.getElementById('s-duration_min').value = data.s_dur||'6';
   ADV_FIELDS.forEach(f=>{
     const el=document.getElementById('f-'+f);
@@ -522,7 +543,7 @@ function deletePreset(e,i){
   showToast(`ลบ "${name}" แล้ว`,'');
 }
 function clearForm(){
-  const fields = ['s-song_title','s-styles','s-lyrics'];
+  const fields = ['s-song_title','s-styles','s-lyrics','s-image_style'];
   fields.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('s-duration_min').value='6';
   ADV_FIELDS.forEach(f=>{const el=document.getElementById('f-'+f);if(el)el.value=f==='duration_min'?'6':'';});
@@ -543,10 +564,12 @@ async function submitSimple(){
   const duration=parseInt(document.getElementById('s-duration_min').value)||6;
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span>กำลังส่งคำสั่ง...';
   result.className='result';result.style.display='none';
+  const imageStyle=document.getElementById('s-image_style').value.trim();
   const payload={duration_min:duration};
   if(songTitle) payload.song_title=songTitle;
   if(styles) payload.suno_tags=styles;
   if(lyrics) payload.lyrics=lyrics;
+  if(imageStyle) payload.image_style=imageStyle;
   try{
     const res=await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await res.json();
@@ -593,9 +616,57 @@ document.getElementById('mvForm').addEventListener('submit',async function(e){
   btn.disabled=false;btn.innerHTML='✦ สร้าง MV';
 });
 
+// STYLE CHIPS
+async function fetchStylesFromSheets() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${SHEETS_API_KEY}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const rows = (data.values || []).slice(1);
+    const music = [], image = [];
+    rows.forEach(r => {
+      if (!r[0]||!r[1]||!r[2]) return;
+      if (r[0].toLowerCase()==='music') music.push({name:r[1],prompt:r[2]});
+      else if (r[0].toLowerCase()==='image') image.push({name:r[1],prompt:r[2]});
+    });
+    localStorage.setItem(MUSIC_STYLES_CACHE, JSON.stringify(music));
+    localStorage.setItem(IMAGE_STYLES_CACHE, JSON.stringify(image));
+  } catch(e) { console.warn('Sheets fetch failed, using cache', e); }
+}
+
+function renderChips(containerId, styles, targetInputId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  if (!styles.length) { container.innerHTML = ''; return; }
+  container.innerHTML = styles.map((s,i) =>
+    `<div class="style-chip" onclick="selectStyleChip('${containerId}','${targetInputId}',${i},'${containerId}')" data-idx="${i}">${s.name}</div>`
+  ).join('');
+}
+
+function loadStyleChips() {
+  const musicStyles = JSON.parse(localStorage.getItem(MUSIC_STYLES_CACHE)||'[]');
+  const imageStyles = JSON.parse(localStorage.getItem(IMAGE_STYLES_CACHE)||'[]');
+  renderChips('s-music-style-chips', musicStyles, 's-styles');
+  renderChips('f-music-style-chips', musicStyles, 'f-styles');
+  renderChips('s-image-style-chips', imageStyles, 's-image_style');
+  renderChips('f-image-style-chips', imageStyles, 'f-image_style');
+}
+
+function selectStyleChip(containerId, inputId, idx, chipContainerId) {
+  const key = containerId.includes('music') ? MUSIC_STYLES_KEY : IMAGE_STYLES_KEY;
+  const styles = JSON.parse(localStorage.getItem(key)||'[]');
+  if (!styles[idx]) return;
+  const input = document.getElementById(inputId);
+  if (input) input.value = styles[idx].prompt;
+  // toggle active
+  document.querySelectorAll('#'+chipContainerId+' .style-chip').forEach((c,i) => {
+    c.classList.toggle('active', i===idx);
+  });
+}
+
 // INIT
 (function init(){
-  const comboFields=['genre','mood','music_style','duration_min','tempo','key','lyric_theme','image_style','color_palette','video_style','aspect_ratio','channel_name','target_lang','tags_extra'];
+  const comboFields=['genre','mood','music_style','duration_min','tempo','key','lyric_theme','color_palette','video_style','aspect_ratio','channel_name','target_lang','tags_extra'];
   comboFields.forEach(f=>initCombo(f));
   const ar=document.getElementById('f-aspect_ratio');if(ar&&!ar.value)ar.value='16:9';
   const tl=document.getElementById('f-target_lang');if(tl&&!tl.value)tl.value='English';
@@ -603,6 +674,9 @@ document.getElementById('mvForm').addEventListener('submit',async function(e){
   const savedMode=localStorage.getItem('mf_mode')||'simple';
   switchMode(savedMode);
   renderPresetList();
+  // load from cache first (instant), then fetch fresh from Sheets
+  loadStyleChips();
+  fetchStylesFromSheets().then(() => loadStyleChips());
 })();
 </script>
 </body>

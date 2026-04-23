@@ -810,7 +810,7 @@ async function triggerWF3(mode) {
   btn.textContent = '⏳ กำลังส่ง...';
 
   try {
-    const res = await fetch(WEBHOOK_URL, {
+    const res = await fetch('https://n8n-4uwf.srv1586194.hstgr.cloud/webhook/trigger-wf3', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ run_id: runId, trigger: 'wf3' })

@@ -7,294 +7,157 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --surface2: #1a1a26;
-    --border: #2a2a3a;
-    --accent: #7c3aed;
-    --accent2: #06b6d4;
-    --text: #e8e8f0;
-    --muted: #6b6b8a;
-    --success: #10b981;
-    --error: #ef4444;
+    --bg:#0a0a0f; --surface:#12121a; --surface2:#1a1a26; --surface3:#20202e;
+    --border:#2a2a3a; --border2:#3a3a50;
+    --accent:#7c3aed; --accent2:#06b6d4; --accent-dim:rgba(124,58,237,0.15);
+    --text:#e8e8f0; --muted:#6b6b8a;
+    --success:#10b981; --error:#ef4444;
   }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+    background:radial-gradient(ellipse at 20% 20%,rgba(124,58,237,0.08) 0%,transparent 50%),
+               radial-gradient(ellipse at 80% 80%,rgba(6,182,212,0.06) 0%,transparent 50%);
+    pointer-events:none;z-index:0;}
+  .container{max-width:740px;margin:0 auto;padding:48px 24px;position:relative;z-index:1;}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  header{margin-bottom:36px;text-align:center;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:4px;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    line-height:1;margin-bottom:8px;}
+  .subtitle{color:var(--muted);font-size:14px;letter-spacing:2px;text-transform:uppercase;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Sarabun', sans-serif;
-    font-weight: 300;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  /* TABS */
+  .mode-tabs{display:flex;background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:4px;margin-bottom:28px;gap:4px;}
+  .mode-tab{flex:1;padding:10px;border:none;border-radius:8px;
+    font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;
+    cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);}
+  .mode-tab.active{background:var(--accent-dim);color:#c4b5fd;border:1px solid var(--accent);}
+  .mode-tab:hover:not(.active){color:var(--text);}
 
-  /* Background effect */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-  }
+  /* PRESET BAR */
+  .preset-bar{background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:16px 20px;margin-bottom:28px;}
+  .preset-bar-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;
+    color:var(--accent2);margin-bottom:12px;}
+  .preset-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:32px;}
+  .preset-chip{display:inline-flex;align-items:center;gap:6px;
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:20px;padding:5px 12px 5px 14px;
+    font-size:13px;color:var(--text);cursor:pointer;transition:all 0.18s;animation:chipIn 0.18s ease;}
+  .preset-chip:hover{border-color:var(--accent2);color:var(--accent2);}
+  .preset-chip.active{background:var(--accent-dim);border-color:var(--accent);color:#c4b5fd;}
+  .preset-chip-del{width:16px;height:16px;border-radius:50%;background:transparent;border:none;
+    color:var(--muted);cursor:pointer;font-size:14px;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:color 0.15s;padding:0;}
+  .preset-chip-del:hover{color:var(--error);}
+  .preset-empty{color:var(--muted);font-size:13px;padding:4px 0;}
+  .preset-save-row{display:flex;gap:8px;align-items:center;}
+  .preset-name-input{flex:1;background:var(--surface2);border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-family:'Sarabun',sans-serif;
+    font-size:14px;padding:8px 12px;outline:none;transition:border-color 0.2s;}
+  .preset-name-input:focus{border-color:var(--accent);}
+  .preset-name-input::placeholder{color:var(--muted);opacity:0.5;}
+  .btn-save-preset{background:var(--accent-dim);border:1px solid var(--accent);
+    color:#c4b5fd;border-radius:8px;padding:8px 16px;
+    font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;
+    cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+  .btn-save-preset:hover{background:rgba(124,58,237,0.25);}
+  .btn-clear-form{background:transparent;border:1px solid var(--border);
+    color:var(--muted);border-radius:8px;padding:8px 14px;
+    font-family:'Sarabun',sans-serif;font-size:13px;
+    cursor:pointer;transition:all 0.18s;white-space:nowrap;}
+  .btn-clear-form:hover{border-color:var(--border2);color:var(--text);}
 
-  .container {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 48px 24px;
-    position: relative;
-    z-index: 1;
-  }
+  /* SIMPLE */
+  .simple-panel{animation:fadeIn 0.2s ease;}
+  .field-label{font-size:12px;font-weight:500;letter-spacing:1.5px;
+    text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block;}
+  .field-label .opt{color:var(--border2);font-weight:300;text-transform:none;letter-spacing:0;}
+  .plain-input{width:100%;background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-family:'Sarabun',sans-serif;
+    font-size:15px;font-weight:300;padding:12px 14px;outline:none;
+    transition:border-color 0.2s,box-shadow 0.2s;margin-bottom:6px;}
+  .plain-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+  .plain-input::placeholder{color:var(--muted);opacity:0.5;}
+  .plain-textarea{resize:vertical;min-height:80px;margin-bottom:0 !important;}
+  .dur-number-row{display:flex;align-items:center;gap:10px;}
+  .dur-number-input{width:100px !important;margin-bottom:0 !important;}
+  .dur-unit-label{color:var(--muted);font-size:14px;}
 
-  header {
-    margin-bottom: 48px;
-    text-align: center;
-  }
+  /* ADVANCED */
+  .adv-panel{animation:fadeIn 0.2s ease;}
+  .section{margin-bottom:28px;}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;
+    color:var(--accent2);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border),transparent);}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .field{display:flex;flex-direction:column;gap:8px;}
+  .field.full{grid-column:1/-1;}
+  label{font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+  label .optional{color:var(--border2);font-weight:300;text-transform:none;letter-spacing:0;}
+  .divider{height:1px;background:var(--border);margin:24px 0;}
 
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 52px;
-    letter-spacing: 4px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
+  /* COMBOBOX */
+  .combo-wrapper{position:relative;}
+  .combo-input{background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;color:var(--text);font-family:'Sarabun',sans-serif;
+    font-size:15px;font-weight:300;padding:11px 36px 11px 14px;
+    outline:none;width:100%;cursor:text;transition:border-color 0.2s,box-shadow 0.2s;}
+  .combo-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+  .combo-input::placeholder{color:var(--muted);opacity:0.5;}
+  .combo-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+    pointer-events:none;color:var(--muted);transition:transform 0.2s;}
+  .combo-wrapper.open .combo-arrow{transform:translateY(-50%) rotate(180deg);}
+  .combo-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;
+    background:var(--surface2);border:1px solid var(--border2);border-radius:8px;z-index:999;
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);display:none;max-height:220px;overflow-y:auto;}
+  .combo-wrapper.open .combo-dropdown{display:block;}
+  .combo-dropdown::-webkit-scrollbar{width:4px;}
+  .combo-dropdown::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .combo-option{padding:10px 14px;font-size:14px;cursor:pointer;
+    transition:background 0.12s;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.04);}
+  .combo-option:last-child{border-bottom:none;}
+  .combo-option:hover,.combo-option.highlighted{background:var(--surface3);color:var(--accent2);}
+  .combo-option.selected{color:#c4b5fd;}
+  .combo-no-options{padding:10px 14px;font-size:13px;color:var(--muted);}
+  .dur-wrapper{display:flex;align-items:center;gap:10px;}
+  .dur-wrapper .combo-wrapper{width:100px;}
+  .dur-unit{color:var(--muted);font-size:14px;}
 
-  .subtitle {
-    color: var(--muted);
-    font-size: 14px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  /* SUBMIT */
+  .submit-btn{width:100%;padding:16px;
+    background:linear-gradient(135deg,var(--accent) 0%,#5b21b6 100%);
+    border:none;border-radius:10px;color:white;
+    font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;
+    cursor:pointer;transition:all 0.2s;margin-top:8px;position:relative;overflow:hidden;}
+  .submit-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left 0.4s;}
+  .submit-btn:hover::before{left:100%;}
+  .submit-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(124,58,237,0.4);}
+  .submit-btn:active{transform:translateY(0);}
+  .submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .result{margin-top:24px;padding:16px 20px;border-radius:10px;font-size:14px;display:none;animation:fadeIn 0.3s ease;}
+  .result.success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--success);display:block;}
+  .result.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--error);display:block;}
+  .result-title{font-weight:600;font-size:15px;margin-bottom:6px;}
+  .result-detail{opacity:0.8;line-height:1.6;}
 
-  .section {
-    margin-bottom: 32px;
-  }
-
-  .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    letter-spacing: 3px;
-    color: var(--accent2);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, var(--border), transparent);
-  }
-
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .grid-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .field.full {
-    grid-column: 1 / -1;
-  }
-
-  label {
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  label .optional {
-    color: var(--border);
-    font-weight: 300;
-    text-transform: none;
-    letter-spacing: 0;
-  }
-
-  input[type="text"],
-  input[type="number"],
-  select,
-  textarea {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Sarabun', sans-serif;
-    font-size: 15px;
-    font-weight: 300;
-    padding: 12px 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    width: 100%;
-  }
-
-  input[type="text"]:focus,
-  input[type="number"]:focus,
-  select:focus,
-  textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
-  }
-
-  select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
-  }
-
-  select option {
-    background: var(--surface2);
-  }
-
-  textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: var(--muted);
-    opacity: 0.5;
-  }
-
-  .duration-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .duration-group input {
-    width: 100px;
-  }
-
-  .duration-label {
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  .submit-btn {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, var(--accent) 0%, #5b21b6 100%);
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .submit-btn::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    transition: left 0.4s;
-  }
-
-  .submit-btn:hover::before { left: 100%; }
-  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(124,58,237,0.4); }
-  .submit-btn:active { transform: translateY(0); }
-  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  .result {
-    margin-top: 24px;
-    padding: 16px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    display: none;
-    animation: fadeIn 0.3s ease;
-  }
-
-  .result.success {
-    background: rgba(16,185,129,0.1);
-    border: 1px solid rgba(16,185,129,0.3);
-    color: var(--success);
-    display: block;
-  }
-
-  .result.error {
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.3);
-    color: var(--error);
-    display: block;
-  }
-
-  .result-title {
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 6px;
-  }
-
-  .result-detail {
-    opacity: 0.8;
-    line-height: 1.6;
-  }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 32px 0;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-
-  @media (max-width: 600px) {
-    .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .logo { font-size: 40px; }
-  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes chipIn{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+  .spinner{display:inline-block;width:16px;height:16px;
+    border:2px solid rgba(255,255,255,0.3);border-top-color:white;
+    border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px;}
+  .toast{position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:var(--surface2);border:1px solid var(--border2);
+    border-radius:8px;padding:10px 16px;font-size:13px;
+    color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,0.4);animation:fadeIn 0.25s ease;}
+  .toast.ok{border-color:rgba(16,185,129,0.4);color:var(--success);}
+  .toast.err{border-color:rgba(239,68,68,0.4);color:var(--error);}
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr;}.logo{font-size:40px;}.preset-save-row{flex-wrap:wrap;}}
 </style>
 </head>
 <body>
@@ -304,195 +167,443 @@
     <div class="subtitle">สร้าง MV อัตโนมัติด้วย AI</div>
   </header>
 
-  <form id="mvForm">
+  <!-- TABS -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-simple" onclick="switchMode('simple')">⚡ Simple</button>
+    <button class="mode-tab" id="tab-advanced" onclick="switchMode('advanced')">⚙️ Advanced</button>
+  </div>
 
-    <!-- เพลง -->
-    <div class="section">
-      <div class="section-title">🎵 เพลง</div>
-      <div class="grid-2">
-        <div class="field">
-          <label>Genre <span class="optional">(ประเภทเพลง)</span></label>
-          <input type="text" name="genre" placeholder="lo-fi hip hop, ambient sleep...">
+  <!-- PRESET BAR -->
+  <div class="preset-bar">
+    <div class="preset-bar-title">⚡ Presets</div>
+    <div class="preset-list" id="presetList">
+      <span class="preset-empty">ยังไม่มี preset — กรอกข้อมูลแล้วกด Save</span>
+    </div>
+    <div class="preset-save-row">
+      <input type="text" class="preset-name-input" id="presetNameInput" placeholder="ชื่อ preset เช่น Sleep Vibes, Lo-fi Chill...">
+      <button class="btn-save-preset" onclick="savePreset()">💾 Save</button>
+      <button class="btn-clear-form" onclick="clearForm()">✕ Clear</button>
+    </div>
+  </div>
+
+  <!-- ===== SIMPLE ===== -->
+  <div id="panel-simple" class="simple-panel">
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="field full">
+        <span class="field-label">ชื่อเพลง <span class="opt">(ใช้เป็นชื่อไฟล์)</span></span>
+        <input id="s-song_title" class="plain-input" style="margin-bottom:0;" placeholder="ใส่ชื่อเพลง...">
+      </div>
+      <div class="field full">
+        <span class="field-label">Styles <span class="opt">(เหมือนช่อง Styles ของ Suno — คั่นด้วย comma)</span></span>
+        <textarea id="s-styles" class="plain-input plain-textarea" rows="3" placeholder="เช่น lo-fi hip hop, rainy night, chill, piano, female vocal..."></textarea>
+      </div>
+      <div class="field full">
+        <span class="field-label">Lyrics <span class="opt">(เนื้อเพลง — เว้นว่างถ้าต้องการ instrumental)</span></span>
+        <textarea id="s-lyrics" class="plain-input plain-textarea" rows="4" placeholder="ใส่เนื้อเพลง หรือเว้นว่างไว้สำหรับ instrumental..."></textarea>
+      </div>
+      <div class="field">
+        <span class="field-label">ความยาว <span class="opt">(นาที)</span></span>
+        <div class="dur-number-row">
+          <input id="s-duration_min" type="number" class="plain-input dur-number-input" value="6" min="1" max="120" style="margin-bottom:0;">
+          <span class="dur-unit-label">นาที</span>
         </div>
-        <div class="field">
-          <label>Mood <span class="optional">(อารมณ์)</span></label>
-          <input type="text" name="mood" placeholder="relaxing, dreamy, energetic...">
-        </div>
-        <div class="field">
-          <label>Music Style <span class="optional">(สไตล์)</span></label>
-          <select name="music_style">
-            <option value="">— ไม่ระบุ —</option>
-            <option value="instrumental">Instrumental</option>
-            <option value="vocal">Vocal</option>
-            <option value="acoustic">Acoustic</option>
-            <option value="electronic">Electronic</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Duration <span class="optional">(ความยาว)</span></label>
-          <div class="duration-group">
-            <input type="number" name="duration_min" value="6" min="1" max="120">
-            <span class="duration-label">นาที</span>
+      </div>
+    </div>
+    <button class="submit-btn" id="submitBtnSimple" onclick="submitSimple()">⚡ สร้าง MV เลย</button>
+    <div id="result-simple" class="result"></div>
+  </div>
+
+  <!-- ===== ADVANCED ===== -->
+  <div id="panel-advanced" class="adv-panel" style="display:none;">
+    <form id="mvForm" autocomplete="off">
+
+      <div class="section">
+        <div class="section-title">🎵 เพลง</div>
+        <div class="grid-2">
+          <div class="field full">
+            <label>ชื่อเพลง <span class="optional">(song title)</span></label>
+            <input type="text" id="f-song_title" class="combo-input" style="padding:11px 14px;" placeholder="ใส่ชื่อเพลง..." autocomplete="off">
+          </div>
+          <div class="field full">
+            <label>Styles <span class="optional">(genre + mood + instrument รวมกัน เหมือน Suno)</span></label>
+            <textarea id="f-styles" class="combo-input plain-textarea" style="padding:11px 14px;resize:vertical;min-height:72px;" placeholder="เช่น lo-fi hip hop, dreamy, piano, female vocal..." autocomplete="off"></textarea>
+          </div>
+          <div class="field">
+            <label>Genre <span class="optional">(ประเภท)</span></label>
+            <div class="combo-wrapper" id="cw-genre">
+              <input class="combo-input" id="f-genre" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-genre"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Mood <span class="optional">(อารมณ์)</span></label>
+            <div class="combo-wrapper" id="cw-mood">
+              <input class="combo-input" id="f-mood" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-mood"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Music Style <span class="optional">(สไตล์)</span></label>
+            <div class="combo-wrapper" id="cw-music_style">
+              <input class="combo-input" id="f-music_style" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-music_style"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Duration <span class="optional">(ความยาว)</span></label>
+            <div class="dur-wrapper">
+              <div class="combo-wrapper" id="cw-duration_min">
+                <input class="combo-input" id="f-duration_min" value="6" placeholder="6" autocomplete="off">
+                <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+                <div class="combo-dropdown" id="dd-duration_min"></div>
+              </div>
+              <span class="dur-unit">นาที</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Tempo <span class="optional">(ความเร็ว)</span></label>
+            <div class="combo-wrapper" id="cw-tempo">
+              <input class="combo-input" id="f-tempo" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-tempo"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Key <span class="optional">(คีย์)</span></label>
+            <div class="combo-wrapper" id="cw-key">
+              <input class="combo-input" id="f-key" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-key"></div>
+            </div>
+          </div>
+          <div class="field full">
+            <label>Lyric Theme <span class="optional">(ธีมเนื้อเพลง)</span></label>
+            <div class="combo-wrapper" id="cw-lyric_theme">
+              <input class="combo-input" id="f-lyric_theme" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-lyric_theme"></div>
+            </div>
+          </div>
+          <div class="field full">
+            <label>Lyrics <span class="optional">(เนื้อเพลง — เว้นว่างถ้าต้องการ instrumental)</span></label>
+            <textarea id="f-lyrics" class="combo-input plain-textarea" style="padding:11px 14px;resize:vertical;min-height:100px;" placeholder="ใส่เนื้อเพลง หรือเว้นว่างไว้สำหรับ instrumental..."></textarea>
           </div>
         </div>
-        <div class="field">
-          <label>Tempo <span class="optional">(ความเร็ว)</span></label>
-          <select name="tempo">
-            <option value="">— ไม่ระบุ —</option>
-            <option value="very slow">Very Slow</option>
-            <option value="slow">Slow</option>
-            <option value="medium">Medium</option>
-            <option value="fast">Fast</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Key <span class="optional">(คีย์)</span></label>
-          <select name="key">
-            <option value="">— ไม่ระบุ —</option>
-            <option value="C major">C Major</option>
-            <option value="C minor">C Minor</option>
-            <option value="D major">D Major</option>
-            <option value="D minor">D Minor</option>
-            <option value="E major">E Major</option>
-            <option value="E minor">E Minor</option>
-            <option value="F major">F Major</option>
-            <option value="G major">G Major</option>
-            <option value="A major">A Major</option>
-            <option value="A minor">A Minor</option>
-          </select>
-        </div>
-        <div class="field full">
-          <label>Lyric Theme <span class="optional">(ธีมเนื้อเพลง)</span></label>
-          <input type="text" name="lyric_theme" placeholder="rainy night city, deep sleep floating in clouds...">
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <div class="section-title">🎬 วีดีโอ & รูป</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Image Style <span class="optional">(สไตล์รูป)</span></label>
+            <div class="combo-wrapper" id="cw-image_style">
+              <input class="combo-input" id="f-image_style" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-image_style"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Color Palette <span class="optional">(โทนสี)</span></label>
+            <div class="combo-wrapper" id="cw-color_palette">
+              <input class="combo-input" id="f-color_palette" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-color_palette"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Video Style <span class="optional">(สไตล์วีดีโอ)</span></label>
+            <div class="combo-wrapper" id="cw-video_style">
+              <input class="combo-input" id="f-video_style" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-video_style"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Aspect Ratio <span class="optional">(สัดส่วน)</span></label>
+            <div class="combo-wrapper" id="cw-aspect_ratio">
+              <input class="combo-input" id="f-aspect_ratio" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-aspect_ratio"></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="divider"></div>
+      <div class="divider"></div>
 
-    <!-- วีดีโอ -->
-    <div class="section">
-      <div class="section-title">🎬 วีดีโอ & รูป</div>
-      <div class="grid-2">
-        <div class="field">
-          <label>Image Style <span class="optional">(สไตล์รูป)</span></label>
-          <input type="text" name="image_style" placeholder="cinematic dark, ethereal soft, anime...">
-        </div>
-        <div class="field">
-          <label>Color Palette <span class="optional">(โทนสี)</span></label>
-          <input type="text" name="color_palette" placeholder="dark blue, neon / soft lavender, misty white...">
-        </div>
-        <div class="field">
-          <label>Video Style <span class="optional">(สไตล์วีดีโอ)</span></label>
-          <input type="text" name="video_style" placeholder="slow motion bokeh, slow drift...">
-        </div>
-        <div class="field">
-          <label>Aspect Ratio <span class="optional">(สัดส่วน)</span></label>
-          <select name="aspect_ratio">
-            <option value="">— ไม่ระบุ —</option>
-            <option value="16:9" selected>16:9 (YouTube)</option>
-            <option value="9:16">9:16 (Shorts/Reels)</option>
-            <option value="1:1">1:1 (Square)</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- Channel -->
-    <div class="section">
-      <div class="section-title">📺 Channel</div>
-      <div class="grid-2">
-        <div class="field">
-          <label>Channel Name <span class="optional">(ชื่อช่อง)</span></label>
-          <input type="text" name="channel_name" placeholder="Chill Beats TH, Sleep Vibes TH...">
-        </div>
-        <div class="field">
-          <label>Target Language <span class="optional">(ภาษา)</span></label>
-          <select name="target_lang">
-            <option value="">— ไม่ระบุ —</option>
-            <option value="English" selected>English</option>
-            <option value="Thai">Thai</option>
-            <option value="Japanese">Japanese</option>
-          </select>
-        </div>
-        <div class="field full">
-          <label>Tags Extra <span class="optional">(แท็กเพิ่มเติม)</span></label>
-          <input type="text" name="tags_extra" placeholder="no vocals, study music, sleep music...">
+      <div class="section">
+        <div class="section-title">📺 Channel</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Channel Name <span class="optional">(ชื่อช่อง)</span></label>
+            <div class="combo-wrapper" id="cw-channel_name">
+              <input class="combo-input" id="f-channel_name" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-channel_name"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Target Language <span class="optional">(ภาษา)</span></label>
+            <div class="combo-wrapper" id="cw-target_lang">
+              <input class="combo-input" id="f-target_lang" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-target_lang"></div>
+            </div>
+          </div>
+          <div class="field full">
+            <label>Tags Extra <span class="optional">(แท็กเพิ่มเติม)</span></label>
+            <div class="combo-wrapper" id="cw-tags_extra">
+              <input class="combo-input" id="f-tags_extra" placeholder="เลือกหรือพิมพ์..." autocomplete="off">
+              <svg class="combo-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+              <div class="combo-dropdown" id="dd-tags_extra"></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <button type="submit" class="submit-btn" id="submitBtn">
-      ✦ สร้าง MV
-    </button>
-
-    <div id="result" class="result"></div>
-
-  </form>
+      <button type="submit" class="submit-btn" id="submitBtn">✦ สร้าง MV</button>
+      <div id="result" class="result"></div>
+    </form>
+  </div>
 </div>
 
 <script>
-  const WEBHOOK_URL = 'https://n8n-4uwf.srv1586194.hstgr.cloud/webhook/music-factory';
+const WEBHOOK_URL = 'https://n8n-4uwf.srv1586194.hstgr.cloud/webhook/music-factory';
+const STORAGE_KEY = 'mf_presets_v3';
 
-  document.getElementById('mvForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+const OPTIONS = {
+  genre:['ambient sleep','lo-fi hip hop','chillhop','dark ambient','cinematic','new age','nature sounds','meditation','jazz lounge','classical piano','study music','rain & thunder','white noise','soft electronic','ethereal'],
+  mood:['dreamy','relaxing','peaceful','melancholic','nostalgic','uplifting','mysterious','romantic','energetic','focus','dark','ethereal','hopeful','cozy'],
+  music_style:['instrumental','vocal','acoustic','electronic','orchestral','hybrid','piano solo','guitar','ambient synth','lo-fi beats'],
+  duration_min:['1','2','3','4','5','6','8','10','15','20','30','45','60'],
+  tempo:['very slow','slow','medium slow','medium','medium fast','fast','very fast'],
+  key:['C major','C minor','C# major','D major','D minor','D# major','E major','E minor','F major','F# major','G major','G minor','A major','A minor','A# major','B major','B minor'],
+  lyric_theme:['deep sleep, floating in clouds','rainy night city lights','alone in the forest at dawn','drifting through space','memories of summer','midnight ocean waves','cozy winter evening','cherry blossoms falling','lost in a dream','mountain sunrise','city at 3am'],
+  image_style:['storybook illustration, hand-painted','cinematic dark','ethereal soft watercolor','anime','photorealistic','impressionist','oil painting','concept art','dreamy pastel','neon noir','minimalist','vintage film'],
+  color_palette:['deep navy blue, warm golden lantern light','dark blue, neon purple','soft lavender, misty white','warm amber, burnt orange','midnight black, electric cyan','forest green, earthy brown','rose gold, soft pink','monochrome silver','pastel rainbow','cool teal, soft gray'],
+  video_style:['gentle sparkle, slow floating particles','slow motion bokeh','slow drift','soft zoom in','parallax layers','subtle glitch','light rays, dust motes','watercolor bleed','star field drift'],
+  aspect_ratio:['16:9','9:16','1:1','4:3','21:9'],
+  channel_name:['Sleep Vibes TH','Chill Beats TH','Lo-fi Study TH','Ambient Dreams','Relaxing Music TH','Focus Flow TH','Night Vibes TH'],
+  target_lang:['English','Thai','Japanese','Korean','Chinese','Spanish','French'],
+  tags_extra:['no vocals','study music','sleep music','meditation music','relaxing music','focus music','background music','instrumental only','rain sounds','nature sounds']
+};
 
-    const btn = document.getElementById('submitBtn');
-    const result = document.getElementById('result');
+// MODE
+let currentMode = 'simple';
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('panel-simple').style.display = mode==='simple' ? '' : 'none';
+  document.getElementById('panel-advanced').style.display = mode==='advanced' ? '' : 'none';
+  document.getElementById('tab-simple').classList.toggle('active', mode==='simple');
+  document.getElementById('tab-advanced').classList.toggle('active', mode==='advanced');
+  localStorage.setItem('mf_mode', mode);
+}
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>กำลังส่งคำสั่ง...';
-    result.className = 'result';
-    result.style.display = 'none';
 
-    const formData = new FormData(this);
-    const payload = {};
 
-    for (const [key, value] of formData.entries()) {
-      if (value.trim() !== '') {
-        if (key === 'duration_min') {
-          payload[key] = parseInt(value);
-        } else {
-          payload[key] = value.trim();
-        }
-      }
-    }
+// COMBOBOX
+const comboStates = {};
+function initCombo(fieldName) {
+  const wrap = document.getElementById('cw-'+fieldName);
+  const input = document.getElementById('f-'+fieldName);
+  const dd = document.getElementById('dd-'+fieldName);
+  if (!wrap||!input||!dd) return;
+  comboStates[fieldName] = {open:false,highlighted:-1};
 
-    try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+  function getOpts(q) {
+    const base = OPTIONS[fieldName]||[];
+    if (!q) return base;
+    const lq = q.toLowerCase();
+    return [
+      ...base.filter(o=>o.toLowerCase()===lq),
+      ...base.filter(o=>o.toLowerCase().startsWith(lq)&&o.toLowerCase()!==lq),
+      ...base.filter(o=>o.toLowerCase().includes(lq)&&!o.toLowerCase().startsWith(lq))
+    ];
+  }
+  function renderDD(q) {
+    const opts = getOpts(q);
+    dd.innerHTML = !opts.length
+      ? '<div class="combo-no-options">พิมพ์ตามต้องการ</div>'
+      : opts.map((o,i)=>`<div class="combo-option${input.value===o?' selected':''}" data-val="${o}" data-idx="${i}">${o}</div>`).join('');
+    comboStates[fieldName].highlighted = -1;
+  }
+  function openDD(){wrap.classList.add('open');comboStates[fieldName].open=true;renderDD(input.value);}
+  function closeDD(){wrap.classList.remove('open');comboStates[fieldName].open=false;}
 
-      const data = await response.json();
-
-      if (response.ok && data.success !== false) {
-        result.className = 'result success';
-        result.innerHTML = `
-          <div class="result-title">✅ ส่งคำสั่งสำเร็จ!</div>
-          <div class="result-detail">
-            Run ID: <strong>${data.run_id || '-'}</strong><br>
-            จำนวนเพลง: <strong>${data.song_count || '-'} เพลง</strong><br>
-            ${data.message || 'ตรวจสอบสถานะได้ใน Google Sheets'}
-          </div>
-        `;
-      } else {
-        throw new Error(data.message || 'เกิดข้อผิดพลาด');
-      }
-    } catch (err) {
-      result.className = 'result error';
-      result.innerHTML = `
-        <div class="result-title">❌ เกิดข้อผิดพลาด</div>
-        <div class="result-detail">${err.message}</div>
-      `;
-    }
-
-    btn.disabled = false;
-    btn.innerHTML = '✦ สร้าง MV';
+  input.addEventListener('focus',openDD);
+  input.addEventListener('click',openDD);
+  input.addEventListener('input',()=>{if(!comboStates[fieldName].open)openDD();else renderDD(input.value);});
+  dd.addEventListener('mousedown',e=>{const opt=e.target.closest('.combo-option');if(opt){input.value=opt.dataset.val;closeDD();}});
+  const arrow=wrap.querySelector('.combo-arrow');
+  if(arrow){arrow.style.pointerEvents='auto';arrow.style.cursor='pointer';
+    arrow.addEventListener('mousedown',e=>{e.preventDefault();comboStates[fieldName].open?closeDD():(input.focus(),openDD());});}
+  input.addEventListener('keydown',e=>{
+    const st=comboStates[fieldName];const items=dd.querySelectorAll('.combo-option');
+    if(e.key==='ArrowDown'){e.preventDefault();if(!st.open)openDD();st.highlighted=Math.min(st.highlighted+1,items.length-1);highlightOpt(fieldName,st.highlighted);}
+    else if(e.key==='ArrowUp'){e.preventDefault();st.highlighted=Math.max(st.highlighted-1,-1);highlightOpt(fieldName,st.highlighted);}
+    else if(e.key==='Enter'){if(st.open&&st.highlighted>=0&&items[st.highlighted]){e.preventDefault();input.value=items[st.highlighted].dataset.val;closeDD();}}
+    else if(e.key==='Escape')closeDD();
   });
+  document.addEventListener('mousedown',e=>{if(!wrap.contains(e.target))closeDD();});
+}
+function highlightOpt(fieldName,idx){
+  const dd=document.getElementById('dd-'+fieldName);if(!dd)return;
+  dd.querySelectorAll('.combo-option').forEach((el,i)=>{el.classList.toggle('highlighted',i===idx);if(i===idx)el.scrollIntoView({block:'nearest'});});
+}
+
+// PRESET
+const ADV_FIELDS = ['song_title','styles','lyrics','genre','mood','music_style','duration_min','tempo','key','lyric_theme','image_style','color_palette','video_style','aspect_ratio','channel_name','target_lang','tags_extra'];
+
+function loadPresets(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch{return[];}}
+function savePresetsToStorage(p){localStorage.setItem(STORAGE_KEY,JSON.stringify(p));}
+
+function getAllFormData() {
+  return {
+    _mode: currentMode,
+    s_song_title: document.getElementById('s-song_title')?.value?.trim()||'',
+    s_styles: document.getElementById('s-styles')?.value?.trim()||'',
+    s_lyrics: document.getElementById('s-lyrics')?.value?.trim()||'',
+    s_dur: document.getElementById('s-duration_min')?.value||'6',
+    ...Object.fromEntries(ADV_FIELDS.map(f=>[f, document.getElementById('f-'+f)?.value?.trim()||'']))
+  };
+}
+function setAllFormData(data) {
+  const sTitle = document.getElementById('s-song_title');
+  if (sTitle) sTitle.value = data.s_song_title||'';
+  const sStyles = document.getElementById('s-styles');
+  if (sStyles) sStyles.value = data.s_styles||'';
+  const sLyrics = document.getElementById('s-lyrics');
+  if (sLyrics) sLyrics.value = data.s_lyrics||'';
+  document.getElementById('s-duration_min').value = data.s_dur||'6';
+  ADV_FIELDS.forEach(f=>{
+    const el=document.getElementById('f-'+f);
+    if(el) el.value = data[f]||(f==='duration_min'?'6':'');
+  });
+}
+
+function renderPresetList() {
+  const presets=loadPresets();
+  const list=document.getElementById('presetList');
+  if(!presets.length){list.innerHTML='<span class="preset-empty">ยังไม่มี preset — กรอกข้อมูลแล้วกด Save</span>';return;}
+  list.innerHTML=presets.map((p,i)=>`
+    <div class="preset-chip" id="pc-${i}" onclick="loadPreset(${i})">
+      ${escHtml(p.name)}
+      <button class="preset-chip-del" title="ลบ" onclick="deletePreset(event,${i})">×</button>
+    </div>`).join('');
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function savePreset() {
+  const name=document.getElementById('presetNameInput').value.trim();
+  if(!name){showToast('ใส่ชื่อ preset ก่อนนะครับ','err');return;}
+  const data=getAllFormData();
+  const presets=loadPresets();
+  const idx=presets.findIndex(p=>p.name===name);
+  if(idx>=0){presets[idx].data=data;showToast(`อัปเดต "${name}" แล้ว ✓`,'ok');}
+  else{presets.push({name,data});showToast(`บันทึก "${name}" แล้ว ✓`,'ok');}
+  savePresetsToStorage(presets);renderPresetList();
+  document.getElementById('presetNameInput').value='';
+}
+function loadPreset(i) {
+  const presets=loadPresets();if(!presets[i])return;
+  setAllFormData(presets[i].data);
+  document.querySelectorAll('.preset-chip').forEach((el,j)=>el.classList.toggle('active',j===i));
+  showToast(`โหลด "${presets[i].name}" แล้ว ✓`,'ok');
+}
+function deletePreset(e,i){
+  e.stopPropagation();
+  const presets=loadPresets();const name=presets[i]?.name;
+  presets.splice(i,1);savePresetsToStorage(presets);renderPresetList();
+  showToast(`ลบ "${name}" แล้ว`,'');
+}
+function clearForm(){
+  const fields = ['s-song_title','s-styles','s-lyrics'];
+  fields.forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('s-duration_min').value='6';
+  ADV_FIELDS.forEach(f=>{const el=document.getElementById('f-'+f);if(el)el.value=f==='duration_min'?'6':'';});
+  document.querySelectorAll('.preset-chip').forEach(el=>el.classList.remove('active'));
+}
+function showToast(msg,type){
+  const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2400);
+}
+
+// SUBMIT SIMPLE
+async function submitSimple(){
+  const btn=document.getElementById('submitBtnSimple');
+  const result=document.getElementById('result-simple');
+  const songTitle=document.getElementById('s-song_title').value.trim();
+  const styles=document.getElementById('s-styles').value.trim();
+  const lyrics=document.getElementById('s-lyrics').value.trim();
+  const duration=parseInt(document.getElementById('s-duration_min').value)||6;
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>กำลังส่งคำสั่ง...';
+  result.className='result';result.style.display='none';
+  const payload={duration_min:duration};
+  if(songTitle) payload.song_title=songTitle;
+  if(styles) payload.suno_tags=styles;
+  if(lyrics) payload.lyrics=lyrics;
+  try{
+    const res=await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(res.ok&&data.success!==false){
+      result.className='result success';
+      result.innerHTML=`<div class="result-title">✅ ส่งคำสั่งสำเร็จ!</div>
+        <div class="result-detail">Run ID: <strong>${data.run_id||'-'}</strong><br>
+        จำนวนเพลง: <strong>${data.song_count||'-'} เพลง</strong><br>
+        ${data.message||'ตรวจสอบสถานะได้ใน Google Sheets'}</div>`;
+    } else throw new Error(data.message||'เกิดข้อผิดพลาด');
+  }catch(err){
+    result.className='result error';
+    result.innerHTML=`<div class="result-title">❌ เกิดข้อผิดพลาด</div><div class="result-detail">${err.message}</div>`;
+  }
+  btn.disabled=false;btn.innerHTML='⚡ สร้าง MV เลย';
+}
+
+// SUBMIT ADVANCED
+document.getElementById('mvForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+  const btn=document.getElementById('submitBtn');
+  const result=document.getElementById('result');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>กำลังส่งคำสั่ง...';
+  result.className='result';result.style.display='none';
+  const payload={};
+  ADV_FIELDS.forEach(f=>{
+    const v=document.getElementById('f-'+f)?.value?.trim();
+    if(v) payload[f]=f==='duration_min'?parseInt(v):v;
+  });
+  try{
+    const res=await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(res.ok&&data.success!==false){
+      result.className='result success';
+      result.innerHTML=`<div class="result-title">✅ ส่งคำสั่งสำเร็จ!</div>
+        <div class="result-detail">Run ID: <strong>${data.run_id||'-'}</strong><br>
+        จำนวนเพลง: <strong>${data.song_count||'-'} เพลง</strong><br>
+        ${data.message||'ตรวจสอบสถานะได้ใน Google Sheets'}</div>`;
+    } else throw new Error(data.message||'เกิดข้อผิดพลาด');
+  }catch(err){
+    result.className='result error';
+    result.innerHTML=`<div class="result-title">❌ เกิดข้อผิดพลาด</div><div class="result-detail">${err.message}</div>`;
+  }
+  btn.disabled=false;btn.innerHTML='✦ สร้าง MV';
+});
+
+// INIT
+(function init(){
+  const comboFields=['genre','mood','music_style','duration_min','tempo','key','lyric_theme','image_style','color_palette','video_style','aspect_ratio','channel_name','target_lang','tags_extra'];
+  comboFields.forEach(f=>initCombo(f));
+  const ar=document.getElementById('f-aspect_ratio');if(ar&&!ar.value)ar.value='16:9';
+  const tl=document.getElementById('f-target_lang');if(tl&&!tl.value)tl.value='English';
+  const dm=document.getElementById('f-duration_min');if(dm&&!dm.value)dm.value='6';
+  const savedMode=localStorage.getItem('mf_mode')||'simple';
+  switchMode(savedMode);
+  renderPresetList();
+})();
 </script>
 </body>
 </html>

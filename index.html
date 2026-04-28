@@ -790,6 +790,32 @@ async function fetchSheet1() {
   return data.values || [];
 }
 
+async function fetchLatestJobs() {
+  try {
+    const rows = await fetchSheet1();
+    if (rows.length < 2) return [];
+    const header = rows[0];
+    const runIdCol = header.indexOf('run_id');
+    const statusCol = header.indexOf('status');
+    const titleCol = header.indexOf('song_title');
+    const countCol = header.indexOf('song_count');
+    const timeCol = header.indexOf('created_at');
+    // get last 10 data rows (newest last in sheet, so reverse)
+    const dataRows = rows.slice(1).filter(r => r[runIdCol]);
+    const last10 = dataRows.slice(-10).reverse();
+    return last10.map(r => ({
+      runId: r[runIdCol] || '',
+      status: r[statusCol] || 'pending_music',
+      title: r[titleCol] || 'ไม่มีชื่อ',
+      count: r[countCol] || '',
+      time: r[timeCol] ? new Date(r[timeCol]).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) : ''
+    }));
+  } catch(e) {
+    console.warn('fetchLatestJobs error:', e);
+    return [];
+  }
+}
+
 async function checkOneJob(runId, idx) {
   const btn = document.getElementById(`check-btn-${idx}`);
   if (btn) { btn.disabled=true; btn.textContent='⏳'; }
@@ -815,27 +841,19 @@ async function checkOneJob(runId, idx) {
 }
 
 async function checkAllStatus() {
-  const jobs = loadJobs();
-  if (!jobs.length) { showToast('ยังไม่มีงานครับ','err'); return; }
+  const btn = document.querySelector('.status-section .btn-check-status');
+  if (btn) { btn.disabled=true; btn.textContent='⏳ กำลังดึง...'; }
   try {
-    const rows = await fetchSheet1();
-    const header = rows[0] || [];
-    const runIdCol = header.indexOf('run_id');
-    const statusCol = header.indexOf('status');
-    const titleCol = header.indexOf('song_title');
-    const countCol = header.indexOf('song_count');
-    jobs.forEach(job => {
-      const row = rows.slice(1).find(r => r[runIdCol] === job.runId);
-      if (row) {
-        job.status = row[statusCol] || job.status;
-        if (titleCol>=0 && row[titleCol]) job.title = row[titleCol];
-        if (countCol>=0 && row[countCol]) job.count = row[countCol];
-      }
-    });
-    saveJobs(jobs);
-    renderJobList();
-    showToast('อัปเดตทั้งหมดแล้ว ✓','ok');
+    const jobs = await fetchLatestJobs();
+    if (!jobs.length) { showToast('ยังไม่มีงานใน Sheet ครับ',''); }
+    else {
+      saveJobs(jobs);
+      renderJobList();
+      document.getElementById('status-section').style.display = '';
+      showToast(`โหลด ${jobs.length} งานล่าสุดแล้ว ✓`,'ok');
+    }
   } catch(e) { showToast('Error: '+e.message,'err'); }
+  if (btn) { btn.disabled=false; btn.textContent='🔄 เช็คทั้งหมด'; }
 }
 
 async function triggerWF3(runId, idx) {
@@ -872,12 +890,14 @@ function showStatusSection(runId, mode) {
   // load from cache first (instant), then fetch fresh from Sheets
   loadStyleChips();
   fetchStylesFromSheets().then(() => loadStyleChips());
-  // restore jobs from localStorage
-  const jobs = loadJobs();
-  if (jobs.length) {
-    document.getElementById('status-section').style.display = '';
-    renderJobList();
-  }
+  // fetch latest jobs from Sheet1 on load
+  fetchLatestJobs().then(jobs => {
+    if (jobs.length) {
+      saveJobs(jobs);
+      renderJobList();
+      document.getElementById('status-section').style.display = '';
+    }
+  });
 })();
 </script>
 </body>
